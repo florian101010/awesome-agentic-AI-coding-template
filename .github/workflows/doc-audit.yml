@@ -1,0 +1,39 @@
+name: Documentation Drift Audit
+
+on:
+  pull_request:
+    paths:
+      - '**.md'
+      - '.agent/**'
+      - '.claude/**'
+      - '.github/instructions/**'
+      - '.github/prompts/**'
+      - '.agents/**'
+  schedule:
+    - cron: '0 2 * * *' # Run nightly at 2 AM
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  doc-audit:
+    name: Audit Documentation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Markdown Linting
+        uses: DavidAnson/markdownlint-cli2-action@v16
+        with:
+          globs: '**/*.md'
+          # Note: If you want to use a config file, create a .markdownlint.yaml
+
+      - name: Run custom doc-drift script (Stub)
+        run: |
+          echo "🔍 Running documentation drift audit..."
+          # Since the doc-audit workflow is defined as an agent task in
+          # .agent/workflows/doc-audit.md, this step would ideally use Jules
+          # to instantiate an agent session to run the audit.
+          # For now, it's a placeholder you can replace with a script call.
+          echo "✅ Please ensure the agent workflow /doc-audit is executed for deep drift detection."

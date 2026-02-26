@@ -1,0 +1,64 @@
+name: PR Quality & Security Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches:
+      - main
+      - develop
+
+jobs:
+  secret-scan:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks Default Action
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        # Excludes can be set via a .gitleaks.toml file in the repository root
+
+  script-analysis:
+    name: Script Safety (ShellCheck)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run ShellCheck
+        uses: ludeeus/action-shellcheck@master
+        with:
+          scandir: '.agent/scripts'
+          severity: warning
+
+  pr-analysis:
+    name: Paranoid PR Analysis & AI Review
+    runs-on: ubuntu-latest
+    needs: [secret-scan, script-analysis]
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Dependencies (jq, python)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y jq python3
+
+      - name: Authenticate with GitHub CLI
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
+
+      - name: Run analyze_pr.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Set up Jules API Key as a repository secret
+          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
+        run: |
+          # Pass the PR number to the script
+          bash .agent/scripts/analyze_pr.sh ${{ github.event.pull_request.number }}
