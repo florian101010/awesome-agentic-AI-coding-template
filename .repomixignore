@@ -1,0 +1,96 @@
+# Repomix Ignore File
+# Dieses File definiert, welche Dateien und Ordner vom Repomix-Scan ausgeschlossen werden sollen.
+# Ziel: Token sparen und irrelevante Dateien (Binaries, Logs, Builds) entfernen.
+
+# --- Dependencies & Build ---
+node_modules/
+dist/
+dist-ssr/
+build/
+out/
+coverage/
+.output/
+
+# --- Version Control & IDE ---
+.git/
+.github/
+.vscode/
+.idea/
+.cursor/
+.claude/
+.DS_Store
+Thumbs.db
+
+# --- Logs & Temporay Files ---
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+*.tmp
+*.temp
+.env
+.env.*
+
+# --- Lock Files & Dummy Configs (Oft zu groß/unnötig für LLM-Kontext) ---
+package.json
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# --- Assets & Binaries (Bilder, Videos, Fonts) ---
+# Bilder
+*.png
+*.jpg
+*.jpeg
+*.gif
+*.webp
+*.ico
+*.bmp
+*.tiff
+# SVGs können Code sein, aber oft auch nur Assets. 
+# Wenn SVGs als Komponenten genutzt werden, diese Zeile auskommentieren.
+*.svg
+
+# Fonts
+*.woff
+*.woff2
+*.ttf
+*.eot
+*.otf
+fonts/
+
+# Video/Audio
+*.mp4
+*.webm
+*.mov
+*.mp3
+*.wav
+
+# Dokumente/Archive
+*.pdf
+*.zip
+*.tar.gz
+*.rar
+*.7z
+
+# --- Repomix Self-Exclusion ---
+repomix-output.xml
+repomix-output.json
+repomix-output.txt
+repomix.config.json
+
+# --- Specific Project Directories ---
+# Public folder often contains static assets
+public/
+dist/*
+deploy/*
+docs/prompts/*
+docs/review-reports/*
+docs/implementation-plans/*
+repomix-output.xml
+_helper_scripts/*
+assets/*
+.agent/tmp/*
+.agent/skills/skill-creator/SKILL.md
+.agents/skills/skill-creator/SKILL.md
