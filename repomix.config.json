@@ -18,10 +18,6 @@
         "customPatterns": [
             "*.log",
             ".agent/tmp/**",
-            ".claude/skills/**",
-            ".agents/skills/**",
-            "docs/ai-coding-agents-best-practices.md",
-            ".gemini/**",
             ".git/**",
             "node_modules/**",
             "optimizations/",
@@ -42,8 +38,6 @@
             "package-lock.json",
             "pnpm-lock.yaml",
             "yarn.lock",
-            "public/fonts/sf-pro/SF-Pro-Text-Regular.otf",
-            "public/fonts/sf-pro/SF-Pro-Text-Semibold.otf",
             "docs/brainstorming/**"
         ]
     },
