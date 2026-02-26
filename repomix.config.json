@@ -1,0 +1,52 @@
+{
+    "output": {
+        "filePath": "repomix-output.xml",
+        "style": "xml",
+        "headerText": "Awesome Agentic AI Coding Template",
+        "instructionFilePath": "",
+        "removeComments": false,
+        "removeEmptyLines": true,
+        "topFilesLength": 5,
+        "showLineNumbers": true
+    },
+    "include": [
+        "**/*"
+    ],
+    "ignore": {
+        "useGitignore": true,
+        "useDefaultPatterns": true,
+        "customPatterns": [
+            "repomix-output.xml",
+            "repomix-output.md",
+            "*.log",
+            ".agent/tmp/**",
+            ".gemini/**",
+            ".git/**",
+            "node_modules/**",
+            "optimizations/",
+            "dist/**",
+            ".vscode/**",
+            ".idea/**",
+            "*.png",
+            "*.jpg",
+            "*.jpeg",
+            "*.gif",
+            "*.svg",
+            "*.ico",
+            "*.webp",
+            "*.woff",
+            "*.woff2",
+            "*.ttf",
+            "*.eot",
+            "package-lock.json",
+            "pnpm-lock.yaml",
+            "yarn.lock",
+            "public/fonts/sf-pro/SF-Pro-Text-Regular.otf",
+            "public/fonts/sf-pro/SF-Pro-Text-Semibold.otf",
+            "docs/brainstorming/**"
+        ]
+    },
+    "security": {
+        "enableSecurityCheck": true
+    }
+}
