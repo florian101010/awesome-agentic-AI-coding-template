@@ -23,8 +23,6 @@ for id in "${IDS[@]}"; do
     fi
 
     PATCH_FILE=".agent/tmp/${id}.patch"
-    MSG_FILE=".agent/tmp/${id}_msg.txt"
-
     if [[ ! -f "$PATCH_FILE" ]]; then
         echo "⚠️  Patch file not found for $id. Skipping."
         continue
@@ -42,7 +40,7 @@ for id in "${IDS[@]}"; do
         if git apply --3way "../${id}.patch"; then
             echo "✅ Patch applied successfully."
             RAW_TITLE="$(head -n 1 "../${id}_msg.txt" 2>/dev/null || echo "Jules session ${id}")"
-            CLEAN_TITLE="$(echo "$RAW_TITLE" | sed 's/^[[:upper:]]/\L&/')"
+            CLEAN_TITLE="${RAW_TITLE,}"
             COMMIT_TITLE="test(jules): $CLEAN_TITLE"
 
             git add -A
