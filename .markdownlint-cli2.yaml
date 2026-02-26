@@ -1,19 +1,19 @@
 config:
   default: true
-  MD012: false
   MD013: false
-  MD022: false
-  MD024: false
-  MD032: false
-  MD033: false
-  MD034: false
-  MD036: false
-  MD040: false
-  MD041: false
-  MD051: false
-  MD055: false
-  MD056: false
 ignores:
   - .agent/**
   - .agents/**
   - .claude/**
+  - .github/copilot-instructions.md
+  - .github/instructions/docs.instructions.md
+  - .github/instructions/qa-audit.instructions.md
+  - .github/prompts/new-feature.prompt.md
+  - .github/prompts/review-changes.prompt.md
+  - .github/pull_request_template.md
+  - AGENTS.md
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - docs/ai-coding-agents-best-practices.md
+  - docs/CUSTOMIZATION-GUIDE.md
+  - docs/SKILLS-CATALOG.md
