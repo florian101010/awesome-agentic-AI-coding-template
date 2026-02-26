@@ -5,15 +5,11 @@ ignores:
   - .agent/**
   - .agents/**
   - .claude/**
+  - .github/instructions/*.md
+  - .github/prompts/*.md
   - .github/copilot-instructions.md
-  - .github/instructions/docs.instructions.md
-  - .github/instructions/qa-audit.instructions.md
-  - .github/prompts/new-feature.prompt.md
-  - .github/prompts/review-changes.prompt.md
   - .github/pull_request_template.md
   - AGENTS.md
   - CHANGELOG.md
   - CONTRIBUTING.md
-  - docs/ai-coding-agents-best-practices.md
-  - docs/CUSTOMIZATION-GUIDE.md
-  - docs/SKILLS-CATALOG.md
+  - docs/*.md
