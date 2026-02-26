@@ -5,7 +5,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-[![Maintained](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com)
+[![GitHub stars](https://img.shields.io/github/stars/florian101010/awesome-agentic-AI-coding-template?style=social)](https://github.com/florian101010/awesome-agentic-AI-coding-template/stargazers)
+[![GitHub forks](https://img.shields.io/github/forks/florian101010/awesome-agentic-AI-coding-template?style=social)](https://github.com/florian101010/awesome-agentic-AI-coding-template/network/members)
+[![GitHub last commit](https://img.shields.io/github/last-commit/florian101010/awesome-agentic-AI-coding-template)](https://github.com/florian101010/awesome-agentic-AI-coding-template/commits/main)
 
 ---
 
@@ -23,6 +25,9 @@ This template encodes **production-ready agentic development practices** into a 
 - **Git hook integration** for automated quality gates
 
 Clone it, fill in your project details, and every AI tool working on your codebase will follow the same high-quality standards.
+
+### Who is this for?
+Whether you are a solo indie hacker using Cursor, or an enterprise team orchestrating GitHub Copilot and Google Jules, this template standardizes your AI interactions.
 
 ---
 
@@ -113,7 +118,7 @@ One template, every major agent, zero duplication.
 
 ### Option A — Use as GitHub Template
 
-Click **"Use this template"** at the top of this page to create a new repo from it.
+[👉 **Click here to generate your project from this template immediately** 👈](https://github.com/florian101010/awesome-agentic-AI-coding-template/generate)
 
 ### Option B — Clone and Copy
 
@@ -183,6 +188,9 @@ Every skill is ready to invoke. Universal skills need no customization; project-
 | **Skill Creator** | `/skill-creator` | Create new custom skills for your project |
 | **Find Skills** | `/find-skills` | Discover all available skills |
 | **Using Superpowers** | `/using-superpowers` | Skill discovery on session start |
+
+*(Example: Running the `/qa-audit` skill in your terminal or PR)*
+![QA Audit Skill in Action](docs/assets/qa-audit-demo.gif)
 
 ---
 
