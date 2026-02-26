@@ -21,7 +21,7 @@ URLS_FILE="$TMP_DIR/pr_${PR_NUMBER}_urls.txt"
 echo "---------------------------------------------------"
 echo "📡 Fetching PR Status..."
 gh pr view "$PR_NUMBER" --json state,mergeable,baseRefName,headRefName,title > "$PR_STATUS"
-cat "$PR_STATUS" | jq '{state, mergeable, title}'
+jq '{state, mergeable, title}' "$PR_STATUS"
 
 MERGEABLE=$(jq -r .mergeable "$PR_STATUS")
 if [ "$MERGEABLE" = "CONFLICTING" ]; then

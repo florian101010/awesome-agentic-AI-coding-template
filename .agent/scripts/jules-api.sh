@@ -30,6 +30,7 @@ API_BASE="https://jules.googleapis.com/v1alpha"
 ENV_FILE="$REPO_ROOT/.env"
 if [[ -f "$ENV_FILE" ]]; then
   set -a
+  # shellcheck disable=SC1090
   source "$ENV_FILE"
   set +a
 fi

@@ -1,0 +1,15 @@
+config:
+  default: true
+  MD013: false
+ignores:
+  - .agent/**
+  - .agents/**
+  - .claude/**
+  - .github/instructions/*.md
+  - .github/prompts/*.md
+  - .github/copilot-instructions.md
+  - .github/pull_request_template.md
+  - AGENTS.md
+  - CHANGELOG.md
+  - CONTRIBUTING.md
+  - docs/*.md
