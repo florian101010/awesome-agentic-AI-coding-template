@@ -16,10 +16,11 @@
         "useGitignore": true,
         "useDefaultPatterns": true,
         "customPatterns": [
-            "repomix-output.xml",
-            "repomix-output.md",
             "*.log",
             ".agent/tmp/**",
+            ".claude/skills/**",
+            ".agents/skills/**",
+            "docs/ai-coding-agents-best-practices.md",
             ".gemini/**",
             ".git/**",
             "node_modules/**",
