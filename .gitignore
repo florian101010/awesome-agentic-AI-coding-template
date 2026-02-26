@@ -1,0 +1,26 @@
+# ─── Secrets & credentials ────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+.jules_key
+
+# ─── Agent temporary files ────────────────────────────────────────────────────
+.agent/tmp/
+
+# ─── Node ─────────────────────────────────────────────────────────────────────
+node_modules/
+package-lock.json
+
+# ─── Python ───────────────────────────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# ─── OS / editor ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/settings.json
