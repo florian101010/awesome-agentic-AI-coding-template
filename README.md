@@ -3,6 +3,8 @@
 > **A production-ready, multi-agent AI coding setup you can drop into any project.**
 > Stop configuring AI tools from scratch. Start from a battle-tested baseline that makes every coding agent smarter, safer, and more consistent from day one.
 
+[👉 **Click here to generate your project from this template** 👈](https://github.com/florian101010/awesome-agentic-AI-coding-template/generate) | [**Jump to Quick Start 🚀**](#quick-start)
+
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 [![GitHub stars](https://img.shields.io/github/stars/florian101010/awesome-agentic-AI-coding-template?style=social)](https://github.com/florian101010/awesome-agentic-AI-coding-template/stargazers)
