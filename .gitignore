@@ -24,3 +24,6 @@ Thumbs.db
 *.swp
 .idea/
 .vscode/settings.json
+
+# ─── Docs ──────────────────────────────────────────────────────────────
+docs/_analysis/*

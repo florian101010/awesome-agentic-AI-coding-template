@@ -123,6 +123,7 @@ Awesome Agentic AI Coding Template
 .agents/skills/writing-plans/SKILL.md
 .gitignore
 .kilocode/rules/coding-standards.md
+.markdownlint-cli2.yaml
 .pre-commit-config.yaml
 .repomixignore
 AGENTS.md
@@ -140,105 +141,6 @@ README.md
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path=".repomixignore">
- 1: # Repomix Ignore File
- 2: # Dieses File definiert, welche Dateien und Ordner vom Repomix-Scan ausgeschlossen werden sollen.
- 3: # Ziel: Token sparen und irrelevante Dateien (Binaries, Logs, Builds) entfernen.
- 4: 
- 5: # --- Dependencies & Build ---
- 6: node_modules/
- 7: dist/
- 8: dist-ssr/
- 9: build/
-10: out/
-11: coverage/
-12: .output/
-13: 
-14: # --- Version Control & IDE ---
-15: .git/
-16: .github/
-17: .vscode/
-18: .idea/
-19: .cursor/
-20: .claude/
-21: .DS_Store
-22: Thumbs.db
-23: 
-24: # --- Logs & Temporay Files ---
-25: logs/
-26: *.log
-27: npm-debug.log*
-28: yarn-debug.log*
-29: pnpm-debug.log*
-30: *.tmp
-31: *.temp
-32: .env
-33: .env.*
-34: 
-35: # --- Lock Files & Dummy Configs (Oft zu groß/unnötig für LLM-Kontext) ---
-36: package.json
-37: package-lock.json
-38: yarn.lock
-39: pnpm-lock.yaml
-40: 
-41: # --- Assets & Binaries (Bilder, Videos, Fonts) ---
-42: # Bilder
-43: *.png
-44: *.jpg
-45: *.jpeg
-46: *.gif
-47: *.webp
-48: *.ico
-49: *.bmp
-50: *.tiff
-51: # SVGs können Code sein, aber oft auch nur Assets. 
-52: # Wenn SVGs als Komponenten genutzt werden, diese Zeile auskommentieren.
-53: *.svg
-54: 
-55: # Fonts
-56: *.woff
-57: *.woff2
-58: *.ttf
-59: *.eot
-60: *.otf
-61: fonts/
-62: 
-63: # Video/Audio
-64: *.mp4
-65: *.webm
-66: *.mov
-67: *.mp3
-68: *.wav
-69: 
-70: # Dokumente/Archive
-71: *.pdf
-72: *.zip
-73: *.tar.gz
-74: *.rar
-75: *.7z
-76: 
-77: # --- Repomix Self-Exclusion ---
-78: repomix-output.xml
-79: repomix-output.json
-80: repomix-output.txt
-81: repomix.config.json
-82: 
-83: # --- Specific Project Directories ---
-84: # Public folder often contains static assets
-85: public/
-86: dist/*
-87: deploy/*
-88: docs/prompts/*
-89: docs/review-reports/*
-90: docs/implementation-plans/*
-91: repomix-output.xml
-92: _helper_scripts/*
-93: assets/*
-94: .agent/tmp/*
-95: .agent/skills/skill-creator/SKILL.md
-96: .agents/skills/skill-creator/SKILL.md
-</file>
 
 <file path=".agent/rules/coding-standards.md">
  1: ---
@@ -287,103 +189,6 @@ This section contains the contents of the repository's files.
 44: - Use `//` inline comments sparingly — only where intent is non-obvious
 45: - Keep all code-level comments in **English**
 46: - When adding a new config field, update the file-top comment to document it
-</file>
-
-<file path=".agent/scripts/analyze_pr.sh">
- 1: #!/bin/bash
- 2: set -euo pipefail
- 3: PR_NUMBER="$1"
- 4: if [ -z "$PR_NUMBER" ]; then
- 5:   echo "Usage: $0 <PR_NUMBER>"
- 6:   exit 1
- 7: fi
- 8: echo "🔍 Init Paranoid Analysis for PR #$PR_NUMBER..."
- 9: # Set up temp directory
-10: TMP_DIR=".agent/tmp"
-11: mkdir -p "$TMP_DIR"
-12: PR_STATUS="$TMP_DIR/pr_${PR_NUMBER}_status.json"
-13: PR_DIFF="$TMP_DIR/pr_${PR_NUMBER}.diff"
-14: URLS_FILE="$TMP_DIR/pr_${PR_NUMBER}_urls.txt"
-15: # 1. Fetch Status (Mergeability)
-16: echo "---------------------------------------------------"
-17: echo "📡 Fetching PR Status..."
-18: gh pr view "$PR_NUMBER" --json state,mergeable,baseRefName,headRefName,title > "$PR_STATUS"
-19: cat "$PR_STATUS" | jq '{state, mergeable, title}'
-20: MERGEABLE=$(jq -r .mergeable "$PR_STATUS")
-21: if [ "$MERGEABLE" = "CONFLICTING" ]; then
-22:   echo "❌ CRITICAL: PR is CONFLICTING. Rebase required."
-23:   echo "Recommendation: STOP audit. Request rebase."
-24: fi
-25: # 2. Fetch Raw Diff
-26: echo "---------------------------------------------------"
-27: echo "📥 Fetching Raw Diff..."
-28: gh pr diff "$PR_NUMBER" > "$PR_DIFF"
-29: echo "Diff saved to $PR_DIFF ($(wc -l < "$PR_DIFF") lines)"
-30: # 2.1 Check for Dirty Branch (Commit Hygiene)
-31: echo "---------------------------------------------------"
-32: echo "🧹 Checking for Dirty Branching..."
-33: # Check if PR has > 10 commits (sign of dirty history) or merges from main
-34: COMMIT_COUNT=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits | length')
-35: if [ "$COMMIT_COUNT" -gt 10 ]; then
-36:   echo "⚠️  WARNING: High commit count ($COMMIT_COUNT). Check for unrelated changes."
-37: else
-38:   echo "✅ Commit count reasonable ($COMMIT_COUNT)."
-39: fi
-40: # 3. Enhanced Threat Scan
-41: echo "---------------------------------------------------"
-42: echo "🛡️ Scanning for Architecture Violations & Threats..."
-43: # Expanded Red Patterns from workflow to match AGENTS.md rules for this repo
-44: RED_PATTERNS="rm |eval |curl |wget |chmod 777|ghp_|ey[A-Za-z0-9]*|password|secret|token|\\<script src=\"http|localStorage|sessionStorage|postMessage"
-45: if grep -rnE "$RED_PATTERNS" "$PR_DIFF"; then
-46:   echo "❌ POTENTIAL THREATS FOUND (See above)"
-47: else
-48:   echo "✅ No obvious red flags found in diff text."
-49: fi
-50: # 4. [FILL: Project-specific content scan]
-51: # Add regex patterns relevant to your project's conventions.
-52: # Example: check for forbidden strings, hardcoded values, or style violations.
-53: echo "---------------------------------------------------"
-54: echo "🔎 Project-specific content scan..."
-55: # YOUR_PATTERNS="\\bforbidden\\b|hardcodedValue"
-56: # if grep -E '^\+[^+]' "$PR_DIFF" | grep -nE "$YOUR_PATTERNS"; then
-57: #   echo "⚠️  PROJECT-SPECIFIC VIOLATIONS FOUND (See above)"
-58: # else
-59: #   echo "✅ No project-specific violations found."
-60: # fi
-61: echo "ℹ️  No project-specific patterns configured. Add your patterns to section 4."
-62: # 5. External Asset Verification (URL Check)
-63: echo "---------------------------------------------------"
-64: echo "🔗 Verifying External URLs..."
-65: # Extract URLs and check them (limit to 5 to avoid spam)
-66: grep -oE 'https?://[^ ")\`]+' "$PR_DIFF" | head -n 5 | sort | uniq > "$URLS_FILE"
-67: if [ -s "$URLS_FILE" ]; then
-68:   while read -r url; do
-69:     if curl --output /dev/null --silent --head --fail --max-time 5 "$url"; then
-70:       echo "✅ URL OK: $url"
-71:     else
-72:       echo "❌ URL BROKEN: $url"
-73:     fi
-74:   done < "$URLS_FILE"
-75: else
-76:   echo "ℹ️  No URLs found to verify."
-77: fi
-78: # 6. Fetch Gemini AI Insights
-79: echo "---------------------------------------------------"
-80: echo "🤖 Fetching Gemini AI Reviews..."
-81: python3 .agent/scripts/fetch_gemini_reviews.py "$PR_NUMBER"
-82: GEMINI_REPORT="$TMP_DIR/pr_${PR_NUMBER}_gemini_report.md"
-83: if [ -f "$GEMINI_REPORT" ]; then
-84:   echo "✅ Gemini insights found and saved to $GEMINI_REPORT"
-85:   # Optional: print a snippet
-86:   grep -F -A 5 "🤖 **Gemini Analysis" "$GEMINI_REPORT" | grep -v -F "🤖 **Gemini Analysis" || echo "   (Detailed analysis available in the report file)"
-87: else
-88:   echo "⚪ No Gemini reviews found for this PR."
-89: fi
-90: echo "---------------------------------------------------"
-91: echo "⚠️  Manual Logic Audit Needed."
-92: echo "    1. Read $PR_DIFF"
-93: echo "    2. Check for missing hover media queries"
-94: echo "    3. Verify documentation matches code changes if applicable"
 </file>
 
 <file path=".agent/scripts/fetch_gemini_reviews.py">
@@ -639,333 +444,6 @@ This section contains the contents of the repository's files.
 105: }
 </file>
 
-<file path=".agent/scripts/jules-api.sh">
-  1: #!/usr/bin/env bash
-  2: # Jules API Helper Script - COMPLETE COVERAGE
-  3: # Usage: jules-api.sh <action> <args...>
-  4: #
-  5: # Session Actions:
-  6: #   create-session <source> <prompt>   Create a new session/task
-  7: #   get-session <id>                   Get session details
-  8: #   delete-session <id>                Delete a session
-  9: #   list-sessions [count]              List recent sessions
- 10: #   send-message <id> <msg>            Send message to session
- 11: #   approve-plan <id>                  Approve a pending plan
- 12: #
- 13: # Activity Actions:
- 14: #   get-activities <id> [count]        Get session activities
- 15: #   get-artifacts <id>                 Get artifacts (diffs, bash output)
- 16: #
- 17: # Source Actions:
- 18: #   list-sources [count]               List connected repositories
- 19: #   get-source <source_id>             Get source details
- 20: set -euo pipefail
- 21: SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
- 22: REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
- 23: JULES_KEY_FILE="$REPO_ROOT/.jules_key"
- 24: TMP_DIR="$REPO_ROOT/.agent/tmp"
- 25: API_BASE="https://jules.googleapis.com/v1alpha"
- 26: # Load API key
- 27: ENV_FILE="$REPO_ROOT/.env"
- 28: if [[ -f "$ENV_FILE" ]]; then
- 29:   set -a
- 30:   source "$ENV_FILE"
- 31:   set +a
- 32: fi
- 33: if [[ -z "${JULES_API_KEY:-}" ]]; then
- 34:   if [[ -f "$JULES_KEY_FILE" ]]; then
- 35:     JULES_KEY=$(tr -d '[:space:]' < "$JULES_KEY_FILE")
- 36:   else
- 37:     echo "❌ Error: Jules API key not found in .env (JULES_API_KEY) or at $JULES_KEY_FILE" >&2
- 38:     exit 1
- 39:   fi
- 40: else
- 41:   JULES_KEY="$JULES_API_KEY"
- 42: fi
- 43: # Common curl options
- 44: curl_opts=(-s --max-time 60 -H "X-Goog-Api-Key: $JULES_KEY")
- 45: usage() {
- 46:   echo "Usage: $(basename "$0") <action> [args...]"
- 47:   echo ""
- 48:   echo "Session Actions:"
- 49:   echo "  create-session <source> <prompt> [--auto-pr]  Create a new task"
- 50:   echo "  get-session <session_id>                      Get session details"
- 51:   echo "  delete-session <session_id>                   Delete a session"
- 52:   echo "  list-sessions [count]                         List sessions (default: 10)"
- 53:   echo "  send-message <session_id> <message|file>      Send message (string or file path)"
- 54:   echo "  approve-plan <session_id>                     Approve pending plan"
- 55:   echo ""
- 56:   echo "Activity Actions:"
- 57:   echo "  get-activities <session_id> [count]           Get activities (default: 5)"
- 58:   echo "  get-artifacts <session_id>                    Get diffs/bash output"
- 59:   echo ""
- 60:   echo "Source Actions:"
- 61:   echo "  list-sources [count]                          List connected repos"
- 62:   echo "  get-source <source_id>                        Get source details"
- 63:   echo ""
- 64:   echo "Examples:"
- 65:   echo "  $(basename "$0") create-session sources/github/owner/repo 'Fix the bug' --auto-pr"
- 66:   echo "  $(basename "$0") get-artifacts 16856078149969131243"
- 67:   echo "  $(basename "$0") approve-plan 16856078149969131243"
- 68: }
- 69: # ============================================================================
- 70: # SESSION ACTIONS
- 71: # ============================================================================
- 72: create_session() {
- 73:   local source="$1"
- 74:   local prompt="$2"
- 75:   local auto_pr="${3:-}"
- 76:   mkdir -p "$TMP_DIR"
- 77:   local payload_file
- 78:   payload_file="$TMP_DIR/jules_create_$(date +%s).json"
- 79:   # Build payload
- 80:   if [[ "$auto_pr" == "--auto-pr" ]]; then
- 81:     jq -n --arg src "$source" --arg p "$prompt" '{
- 82:             sourceContext: { source: $src },
- 83:             prompt: $p,
- 84:             automationMode: "AUTO_CREATE_PR"
- 85:         }' > "$payload_file"
- 86:   else
- 87:     jq -n --arg src "$source" --arg p "$prompt" '{
- 88:             sourceContext: { source: $src },
- 89:             prompt: $p
- 90:         }' > "$payload_file"
- 91:   fi
- 92:   local response
- 93:   response=$(curl "${curl_opts[@]}" -X POST \
- 94:     -H "Content-Type: application/json" \
- 95:     -d "@$payload_file" \
- 96:     "$API_BASE/sessions")
- 97:   rm -f "$payload_file"
- 98:   # Extract session ID from response
- 99:   local session_id
-100:   session_id=$(echo "$response" | jq -r '.name // empty')
-101:   if [[ -n "$session_id" ]]; then
-102:     echo "✅ Session created: $session_id"
-103:     echo "$response" | jq '{name, state, title}'
-104:   else
-105:     echo "Response: $response"
-106:   fi
-107: }
-108: get_session() {
-109:   local session_id="$1"
-110:   curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id" | jq '{
-111:         state,
-112:         title,
-113:         prompt: .prompt[:500],
-114:         automationMode,
-115:         requirePlanApproval,
-116:         output: {
-117:             pullRequest: .output.pullRequest.url
-118:         }
-119:     }'
-120: }
-121: delete_session() {
-122:   local session_id="$1"
-123:   local response
-124:   response=$(curl "${curl_opts[@]}" -X DELETE "$API_BASE/sessions/$session_id")
-125:   if [[ "$response" == "{}" ]]; then
-126:     echo "✅ Session $session_id deleted successfully"
-127:   else
-128:     echo "Response: $response"
-129:   fi
-130: }
-131: list_sessions() {
-132:   local count="${1:-10}"
-133:   curl "${curl_opts[@]}" "$API_BASE/sessions?pageSize=$count" \
-134:     | jq '.sessions[] | {id: .name, state, title, created: .createTime}'
-135: }
-136: send_message() {
-137:   local session_id="$1"
-138:   local message="$2"
-139:   # Support reading message from file if argument is a valid file path
-140:   if [[ -f "$message" ]]; then
-141:     message=$(cat "$message")
-142:   fi
-143:   # Pre-check: Verify session is active
-144:   local state
-145:   state=$(curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id" | jq -r '.state')
-146:   if [[ "$state" == "COMPLETED" || "$state" == "FAILED" ]]; then
-147:     echo "⚠️  WARNING: Session is $state. Attempting to send message anyway (API may hang/timeout)..." >&2
-148:   fi
-149:   mkdir -p "$TMP_DIR"
-150:   local payload_file
-151:   payload_file="$TMP_DIR/jules_message_$(date +%s).json"
-152:   jq -n --arg msg "$message" '{"prompt": $msg}' > "$payload_file"
-153:   local response
-154:   response=$(curl "${curl_opts[@]}" -X POST \
-155:     -H "Content-Type: application/json" \
-156:     -d "@$payload_file" \
-157:     "$API_BASE/sessions/$session_id:sendMessage")
-158:   rm -f "$payload_file"
-159:   if [[ "$response" == "{}" ]]; then
-160:     echo "✅ Message sent successfully to session $session_id"
-161:     echo "   Run 'get-activities $session_id' to see Jules's response"
-162:   else
-163:     echo "Response: $response"
-164:   fi
-165: }
-166: approve_plan() {
-167:   local session_id="$1"
-168:   # Check if session is awaiting approval
-169:   local state
-170:   state=$(curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id" | jq -r '.state')
-171:   if [[ "$state" != "AWAITING_PLAN_APPROVAL" ]]; then
-172:     echo "⚠️ Session is not awaiting plan approval (state: $state)" >&2
-173:     return 1
-174:   fi
-175:   local response
-176:   response=$(curl "${curl_opts[@]}" -X POST \
-177:     -H "Content-Type: application/json" \
-178:     -d '{}' \
-179:     "$API_BASE/sessions/$session_id:approvePlan")
-180:   if [[ "$response" == "{}" ]]; then
-181:     echo "✅ Plan approved for session $session_id"
-182:   else
-183:     echo "Response: $response"
-184:   fi
-185: }
-186: # ============================================================================
-187: # ACTIVITY ACTIONS
-188: # ============================================================================
-189: get_activities() {
-190:   local session_id="$1"
-191:   local count="${2:-5}"
-192:   curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id/activities?pageSize=$count" \
-193:     | jq --arg count "$count" '.activities | sort_by(.createTime) | reverse | .[:($count | tonumber)] | .[] | {
-194:             time: .createTime,
-195:             originator,
-196:             type: (if .messageContent then "message" elif .progressUpdated then "progress" elif .planGenerated then "plan" elif .userMessaged then "user_message" elif .sessionCompleted then "completed" elif .sessionFailed then "failed" else "other" end),
-197:             text: (.messageContent.text // .progressUpdated.title // .progressUpdated.description // .userMessaged.userMessage // .planGenerated.plan.steps[0].title // "")[:400]
-198:         }'
-199: }
-200: get_artifacts() {
-201:   local session_id="$1"
-202:   echo "🔍 Fetching artifacts (diffs, bash output) for session $session_id..."
-203:   curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id/activities?pageSize=50" \
-204:     | jq '[.activities[] | select(.artifacts != null) | .artifacts[]] | {
-205:             changeSets: [.[] | select(.changeSet != null) | {
-206:                 source: .changeSet.source,
-207:                 baseCommit: .changeSet.gitPatch.baseCommitId,
-208:                 commitMessage: .changeSet.gitPatch.suggestedCommitMessage,
-209:                 diff: .changeSet.gitPatch.unidiffPatch
-210:             }],
-211:             bashOutputs: [.[] | select(.bashOutput != null) | {
-212:                 command: .bashOutput.command,
-213:                 exitCode: .bashOutput.exitCode,
-214:                 output: .bashOutput.output[:500]
-215:             }],
-216:             media: [.[] | select(.media != null) | {
-217:                 mimeType: .media.mimeType
-218:             }]
-219:         }'
-220: }
-221: # ============================================================================
-222: # SOURCE ACTIONS
-223: # ============================================================================
-224: list_sources() {
-225:   local count="${1:-10}"
-226:   curl "${curl_opts[@]}" "$API_BASE/sources?pageSize=$count" \
-227:     | jq '.sources[] | {
-228:             name,
-229:             displayName,
-230:             repo: .gitHubRepo.fullName,
-231:             defaultBranch: .gitHubRepo.defaultBranch
-232:         }'
-233: }
-234: get_source() {
-235:   local source_id="$1"
-236:   curl "${curl_opts[@]}" "$API_BASE/$source_id" | jq '.'
-237: }
-238: # ============================================================================
-239: # MAIN DISPATCH
-240: # ============================================================================
-241: case "${1:-}" in
-242:   # Session Actions
-243:   create-session)
-244:     [[ -z "${2:-}" || -z "${3:-}" ]] && {
-245:       echo "Error: source and prompt required" >&2
-246:       usage
-247:       exit 1
-248:     }
-249:     create_session "$2" "$3" "${4:-}"
-250:     ;;
-251:   get-session)
-252:     [[ -z "${2:-}" ]] && {
-253:       echo "Error: session_id required" >&2
-254:       usage
-255:       exit 1
-256:     }
-257:     get_session "$2"
-258:     ;;
-259:   delete-session)
-260:     [[ -z "${2:-}" ]] && {
-261:       echo "Error: session_id required" >&2
-262:       usage
-263:       exit 1
-264:     }
-265:     delete_session "$2"
-266:     ;;
-267:   list-sessions)
-268:     list_sessions "${2:-10}"
-269:     ;;
-270:   send-message)
-271:     [[ -z "${2:-}" || -z "${3:-}" ]] && {
-272:       echo "Error: session_id and message required" >&2
-273:       usage
-274:       exit 1
-275:     }
-276:     send_message "$2" "$3"
-277:     ;;
-278:   approve-plan)
-279:     [[ -z "${2:-}" ]] && {
-280:       echo "Error: session_id required" >&2
-281:       usage
-282:       exit 1
-283:     }
-284:     approve_plan "$2"
-285:     ;;
-286:   # Activity Actions
-287:   get-activities)
-288:     [[ -z "${2:-}" ]] && {
-289:       echo "Error: session_id required" >&2
-290:       usage
-291:       exit 1
-292:     }
-293:     get_activities "$2" "${3:-5}"
-294:     ;;
-295:   get-artifacts)
-296:     [[ -z "${2:-}" ]] && {
-297:       echo "Error: session_id required" >&2
-298:       usage
-299:       exit 1
-300:     }
-301:     get_artifacts "$2"
-302:     ;;
-303:   # Source Actions
-304:   list-sources)
-305:     list_sources "${2:-10}"
-306:     ;;
-307:   get-source)
-308:     [[ -z "${2:-}" ]] && {
-309:       echo "Error: source_id required" >&2
-310:       usage
-311:       exit 1
-312:     }
-313:     get_source "$2"
-314:     ;;
-315:   # Help
-316:   -h | --help | help)
-317:     usage
-318:     ;;
-319:   *)
-320:     echo "Error: Unknown action '${1:-}'" >&2
-321:     usage
-322:     exit 1
-323:     ;;
-324: esac
-</file>
-
 <file path=".agent/scripts/jules-batch-review.js">
  1: #!/usr/bin/env node
  2: const { execFileSync } = require('child_process');
@@ -1018,66 +496,6 @@ This section contains the contents of the repository's files.
 49:     }
 50: }
 51: run();
-</file>
-
-<file path=".agent/scripts/jules-create-prs.sh">
- 1: #!/bin/bash
- 2: # Applies a list of patches from Jules and creates Pull Requests.
- 3: # Safe mode: uses isolated git worktrees, avoids destructive checkout/reset in the main workspace.
- 4: set -euo pipefail
- 5: # [FILL: Add Jules session IDs to process. Retrieve them via: bash .agent/scripts/jules-api.sh list-sessions]
- 6: # Example:
- 7: IDS=(
- 8:     # 12345678901234567890
- 9:     # 98765432109876543210
-10: )
-11: DEFAULT_BRANCH="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
-12: DEFAULT_BRANCH="${DEFAULT_BRANCH:-master}"
-13: for id in "${IDS[@]}"; do
-14:     echo "=================================================="
-15:     echo "🚀 Processing session $id..."
-16:     if [[ ! "$id" =~ ^[0-9]+$ ]]; then
-17:         echo "⚠️  Invalid session ID format: $id. Skipping."
-18:         continue
-19:     fi
-20:     PATCH_FILE=".agent/tmp/${id}.patch"
-21:     MSG_FILE=".agent/tmp/${id}_msg.txt"
-22:     if [[ ! -f "$PATCH_FILE" ]]; then
-23:         echo "⚠️  Patch file not found for $id. Skipping."
-24:         continue
-25:     fi
-26:     BRANCH_NAME="test-jules-${id}"
-27:     WORKTREE_DIR=".agent/tmp/worktree-${id}"
-28:     rm -rf "$WORKTREE_DIR"
-29:     git worktree add -B "$BRANCH_NAME" "$WORKTREE_DIR" "origin/$DEFAULT_BRANCH" -q
-30:     (
-31:         cd "$WORKTREE_DIR"
-32:         if git apply --3way "../${id}.patch"; then
-33:             echo "✅ Patch applied successfully."
-34:             RAW_TITLE="$(head -n 1 "../${id}_msg.txt" 2>/dev/null || echo "Jules session ${id}")"
-35:             CLEAN_TITLE="$(echo "$RAW_TITLE" | sed 's/^[[:upper:]]/\L&/')"
-36:             COMMIT_TITLE="test(jules): $CLEAN_TITLE"
-37:             git add -A
-38:             if git diff --cached --quiet; then
-39:                 echo "ℹ️  No staged changes after applying patch. Skipping commit."
-40:                 exit 0
-41:             fi
-42:             git commit -m "$COMMIT_TITLE" -m "$(cat "../${id}_msg.txt" 2>/dev/null || echo "Jules session ${id}")" -q
-43:             echo "⬆️ Pushing branch to remote..."
-44:             git push -u origin "$BRANCH_NAME" -q
-45:             echo "🌟 Creating Pull Request..."
-46:             gh pr create \
-47:                 --title "🧪 $COMMIT_TITLE" \
-48:                 --body "This PR contains automated testing improvements generated by Jules for session [$id](https://jules.google.com/task/$id)." \
-49:                 --head "$BRANCH_NAME" \
-50:                 --base "$DEFAULT_BRANCH" || echo "⚠️ PR creation might have failed."
-51:         else
-52:             echo "❌ Failed to apply patch for $id. Skipping."
-53:         fi
-54:     )
-55:     git worktree remove "$WORKTREE_DIR" --force
-56: done
-57: echo "🎉 Finished processing PRs."
 </file>
 
 <file path=".agent/scripts/jules-extract-patch.js">
@@ -8341,6 +7759,24 @@ This section contains the contents of the repository's files.
 52: - When adding a new config field, update the file-top comment to document it
 </file>
 
+<file path=".markdownlint-cli2.yaml">
+ 1: config:
+ 2:   default: true
+ 3:   MD013: false
+ 4: ignores:
+ 5:   - .agent/**
+ 6:   - .agents/**
+ 7:   - .claude/**
+ 8:   - .github/instructions/*.md
+ 9:   - .github/prompts/*.md
+10:   - .github/copilot-instructions.md
+11:   - .github/pull_request_template.md
+12:   - AGENTS.md
+13:   - CHANGELOG.md
+14:   - CONTRIBUTING.md
+15:   - docs/*.md
+</file>
+
 <file path=".pre-commit-config.yaml">
  1: repos:
  2:   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -8395,6 +7831,105 @@ This section contains the contents of the repository's files.
 51:             CHANGELOG\.md|
 52:             docs/.*
 53:           )$
+</file>
+
+<file path=".repomixignore">
+ 1: # Repomix Ignore File
+ 2: # Dieses File definiert, welche Dateien und Ordner vom Repomix-Scan ausgeschlossen werden sollen.
+ 3: # Ziel: Token sparen und irrelevante Dateien (Binaries, Logs, Builds) entfernen.
+ 4: 
+ 5: # --- Dependencies & Build ---
+ 6: node_modules/
+ 7: dist/
+ 8: dist-ssr/
+ 9: build/
+10: out/
+11: coverage/
+12: .output/
+13: 
+14: # --- Version Control & IDE ---
+15: .git/
+16: .github/
+17: .vscode/
+18: .idea/
+19: .cursor/
+20: .claude/
+21: .DS_Store
+22: Thumbs.db
+23: 
+24: # --- Logs & Temporay Files ---
+25: logs/
+26: *.log
+27: npm-debug.log*
+28: yarn-debug.log*
+29: pnpm-debug.log*
+30: *.tmp
+31: *.temp
+32: .env
+33: .env.*
+34: 
+35: # --- Lock Files & Dummy Configs (Oft zu groß/unnötig für LLM-Kontext) ---
+36: package.json
+37: package-lock.json
+38: yarn.lock
+39: pnpm-lock.yaml
+40: 
+41: # --- Assets & Binaries (Bilder, Videos, Fonts) ---
+42: # Bilder
+43: *.png
+44: *.jpg
+45: *.jpeg
+46: *.gif
+47: *.webp
+48: *.ico
+49: *.bmp
+50: *.tiff
+51: # SVGs können Code sein, aber oft auch nur Assets. 
+52: # Wenn SVGs als Komponenten genutzt werden, diese Zeile auskommentieren.
+53: *.svg
+54: 
+55: # Fonts
+56: *.woff
+57: *.woff2
+58: *.ttf
+59: *.eot
+60: *.otf
+61: fonts/
+62: 
+63: # Video/Audio
+64: *.mp4
+65: *.webm
+66: *.mov
+67: *.mp3
+68: *.wav
+69: 
+70: # Dokumente/Archive
+71: *.pdf
+72: *.zip
+73: *.tar.gz
+74: *.rar
+75: *.7z
+76: 
+77: # --- Repomix Self-Exclusion ---
+78: repomix-output.xml
+79: repomix-output.json
+80: repomix-output.txt
+81: repomix.config.json
+82: 
+83: # --- Specific Project Directories ---
+84: # Public folder often contains static assets
+85: public/
+86: dist/*
+87: deploy/*
+88: docs/prompts/*
+89: docs/review-reports/*
+90: docs/implementation-plans/*
+91: repomix-output.xml
+92: _helper_scripts/*
+93: assets/*
+94: .agent/tmp/*
+95: .agent/skills/skill-creator/SKILL.md
+96: .agents/skills/skill-creator/SKILL.md
 </file>
 
 <file path="AGENTS.md">
@@ -12113,345 +11648,838 @@ This section contains the contents of the repository's files.
 21: SOFTWARE.
 </file>
 
+<file path=".agent/scripts/analyze_pr.sh">
+ 1: #!/bin/bash
+ 2: set -euo pipefail
+ 3: PR_NUMBER="$1"
+ 4: if [ -z "$PR_NUMBER" ]; then
+ 5:   echo "Usage: $0 <PR_NUMBER>"
+ 6:   exit 1
+ 7: fi
+ 8: echo "🔍 Init Paranoid Analysis for PR #$PR_NUMBER..."
+ 9: # Set up temp directory
+10: TMP_DIR=".agent/tmp"
+11: mkdir -p "$TMP_DIR"
+12: PR_STATUS="$TMP_DIR/pr_${PR_NUMBER}_status.json"
+13: PR_DIFF="$TMP_DIR/pr_${PR_NUMBER}.diff"
+14: URLS_FILE="$TMP_DIR/pr_${PR_NUMBER}_urls.txt"
+15: # 1. Fetch Status (Mergeability)
+16: echo "---------------------------------------------------"
+17: echo "📡 Fetching PR Status..."
+18: gh pr view "$PR_NUMBER" --json state,mergeable,baseRefName,headRefName,title > "$PR_STATUS"
+19: jq '{state, mergeable, title}' "$PR_STATUS"
+20: MERGEABLE=$(jq -r .mergeable "$PR_STATUS")
+21: if [ "$MERGEABLE" = "CONFLICTING" ]; then
+22:   echo "❌ CRITICAL: PR is CONFLICTING. Rebase required."
+23:   echo "Recommendation: STOP audit. Request rebase."
+24: fi
+25: # 2. Fetch Raw Diff
+26: echo "---------------------------------------------------"
+27: echo "📥 Fetching Raw Diff..."
+28: gh pr diff "$PR_NUMBER" > "$PR_DIFF"
+29: echo "Diff saved to $PR_DIFF ($(wc -l < "$PR_DIFF") lines)"
+30: # 2.1 Check for Dirty Branch (Commit Hygiene)
+31: echo "---------------------------------------------------"
+32: echo "🧹 Checking for Dirty Branching..."
+33: # Check if PR has > 10 commits (sign of dirty history) or merges from main
+34: COMMIT_COUNT=$(gh pr view "$PR_NUMBER" --json commits --jq '.commits | length')
+35: if [ "$COMMIT_COUNT" -gt 10 ]; then
+36:   echo "⚠️  WARNING: High commit count ($COMMIT_COUNT). Check for unrelated changes."
+37: else
+38:   echo "✅ Commit count reasonable ($COMMIT_COUNT)."
+39: fi
+40: # 3. Enhanced Threat Scan
+41: echo "---------------------------------------------------"
+42: echo "🛡️ Scanning for Architecture Violations & Threats..."
+43: # Expanded Red Patterns from workflow to match AGENTS.md rules for this repo
+44: RED_PATTERNS="rm |eval |curl |wget |chmod 777|ghp_|ey[A-Za-z0-9]*|password|secret|token|\\<script src=\"http|localStorage|sessionStorage|postMessage"
+45: if grep -rnE "$RED_PATTERNS" "$PR_DIFF"; then
+46:   echo "❌ POTENTIAL THREATS FOUND (See above)"
+47: else
+48:   echo "✅ No obvious red flags found in diff text."
+49: fi
+50: # 4. [FILL: Project-specific content scan]
+51: # Add regex patterns relevant to your project's conventions.
+52: # Example: check for forbidden strings, hardcoded values, or style violations.
+53: echo "---------------------------------------------------"
+54: echo "🔎 Project-specific content scan..."
+55: # YOUR_PATTERNS="\\bforbidden\\b|hardcodedValue"
+56: # if grep -E '^\+[^+]' "$PR_DIFF" | grep -nE "$YOUR_PATTERNS"; then
+57: #   echo "⚠️  PROJECT-SPECIFIC VIOLATIONS FOUND (See above)"
+58: # else
+59: #   echo "✅ No project-specific violations found."
+60: # fi
+61: echo "ℹ️  No project-specific patterns configured. Add your patterns to section 4."
+62: # 5. External Asset Verification (URL Check)
+63: echo "---------------------------------------------------"
+64: echo "🔗 Verifying External URLs..."
+65: # Extract URLs and check them (limit to 5 to avoid spam)
+66: grep -oE 'https?://[^ ")\`]+' "$PR_DIFF" | head -n 5 | sort | uniq > "$URLS_FILE"
+67: if [ -s "$URLS_FILE" ]; then
+68:   while read -r url; do
+69:     if curl --output /dev/null --silent --head --fail --max-time 5 "$url"; then
+70:       echo "✅ URL OK: $url"
+71:     else
+72:       echo "❌ URL BROKEN: $url"
+73:     fi
+74:   done < "$URLS_FILE"
+75: else
+76:   echo "ℹ️  No URLs found to verify."
+77: fi
+78: # 6. Fetch Gemini AI Insights
+79: echo "---------------------------------------------------"
+80: echo "🤖 Fetching Gemini AI Reviews..."
+81: python3 .agent/scripts/fetch_gemini_reviews.py "$PR_NUMBER"
+82: GEMINI_REPORT="$TMP_DIR/pr_${PR_NUMBER}_gemini_report.md"
+83: if [ -f "$GEMINI_REPORT" ]; then
+84:   echo "✅ Gemini insights found and saved to $GEMINI_REPORT"
+85:   # Optional: print a snippet
+86:   grep -F -A 5 "🤖 **Gemini Analysis" "$GEMINI_REPORT" | grep -v -F "🤖 **Gemini Analysis" || echo "   (Detailed analysis available in the report file)"
+87: else
+88:   echo "⚪ No Gemini reviews found for this PR."
+89: fi
+90: echo "---------------------------------------------------"
+91: echo "⚠️  Manual Logic Audit Needed."
+92: echo "    1. Read $PR_DIFF"
+93: echo "    2. Check for missing hover media queries"
+94: echo "    3. Verify documentation matches code changes if applicable"
+</file>
+
+<file path=".agent/scripts/jules-api.sh">
+  1: #!/usr/bin/env bash
+  2: # Jules API Helper Script - COMPLETE COVERAGE
+  3: # Usage: jules-api.sh <action> <args...>
+  4: #
+  5: # Session Actions:
+  6: #   create-session <source> <prompt>   Create a new session/task
+  7: #   get-session <id>                   Get session details
+  8: #   delete-session <id>                Delete a session
+  9: #   list-sessions [count]              List recent sessions
+ 10: #   send-message <id> <msg>            Send message to session
+ 11: #   approve-plan <id>                  Approve a pending plan
+ 12: #
+ 13: # Activity Actions:
+ 14: #   get-activities <id> [count]        Get session activities
+ 15: #   get-artifacts <id>                 Get artifacts (diffs, bash output)
+ 16: #
+ 17: # Source Actions:
+ 18: #   list-sources [count]               List connected repositories
+ 19: #   get-source <source_id>             Get source details
+ 20: set -euo pipefail
+ 21: SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ 22: REPO_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ 23: JULES_KEY_FILE="$REPO_ROOT/.jules_key"
+ 24: TMP_DIR="$REPO_ROOT/.agent/tmp"
+ 25: API_BASE="https://jules.googleapis.com/v1alpha"
+ 26: # Load API key
+ 27: ENV_FILE="$REPO_ROOT/.env"
+ 28: if [[ -f "$ENV_FILE" ]]; then
+ 29:   set -a
+ 30:   # shellcheck disable=SC1090
+ 31:   source "$ENV_FILE"
+ 32:   set +a
+ 33: fi
+ 34: if [[ -z "${JULES_API_KEY:-}" ]]; then
+ 35:   if [[ -f "$JULES_KEY_FILE" ]]; then
+ 36:     JULES_KEY=$(tr -d '[:space:]' < "$JULES_KEY_FILE")
+ 37:   else
+ 38:     echo "❌ Error: Jules API key not found in .env (JULES_API_KEY) or at $JULES_KEY_FILE" >&2
+ 39:     exit 1
+ 40:   fi
+ 41: else
+ 42:   JULES_KEY="$JULES_API_KEY"
+ 43: fi
+ 44: # Common curl options
+ 45: curl_opts=(-s --max-time 60 -H "X-Goog-Api-Key: $JULES_KEY")
+ 46: usage() {
+ 47:   echo "Usage: $(basename "$0") <action> [args...]"
+ 48:   echo ""
+ 49:   echo "Session Actions:"
+ 50:   echo "  create-session <source> <prompt> [--auto-pr]  Create a new task"
+ 51:   echo "  get-session <session_id>                      Get session details"
+ 52:   echo "  delete-session <session_id>                   Delete a session"
+ 53:   echo "  list-sessions [count]                         List sessions (default: 10)"
+ 54:   echo "  send-message <session_id> <message|file>      Send message (string or file path)"
+ 55:   echo "  approve-plan <session_id>                     Approve pending plan"
+ 56:   echo ""
+ 57:   echo "Activity Actions:"
+ 58:   echo "  get-activities <session_id> [count]           Get activities (default: 5)"
+ 59:   echo "  get-artifacts <session_id>                    Get diffs/bash output"
+ 60:   echo ""
+ 61:   echo "Source Actions:"
+ 62:   echo "  list-sources [count]                          List connected repos"
+ 63:   echo "  get-source <source_id>                        Get source details"
+ 64:   echo ""
+ 65:   echo "Examples:"
+ 66:   echo "  $(basename "$0") create-session sources/github/owner/repo 'Fix the bug' --auto-pr"
+ 67:   echo "  $(basename "$0") get-artifacts 16856078149969131243"
+ 68:   echo "  $(basename "$0") approve-plan 16856078149969131243"
+ 69: }
+ 70: # ============================================================================
+ 71: # SESSION ACTIONS
+ 72: # ============================================================================
+ 73: create_session() {
+ 74:   local source="$1"
+ 75:   local prompt="$2"
+ 76:   local auto_pr="${3:-}"
+ 77:   mkdir -p "$TMP_DIR"
+ 78:   local payload_file
+ 79:   payload_file="$TMP_DIR/jules_create_$(date +%s).json"
+ 80:   # Build payload
+ 81:   if [[ "$auto_pr" == "--auto-pr" ]]; then
+ 82:     jq -n --arg src "$source" --arg p "$prompt" '{
+ 83:             sourceContext: { source: $src },
+ 84:             prompt: $p,
+ 85:             automationMode: "AUTO_CREATE_PR"
+ 86:         }' > "$payload_file"
+ 87:   else
+ 88:     jq -n --arg src "$source" --arg p "$prompt" '{
+ 89:             sourceContext: { source: $src },
+ 90:             prompt: $p
+ 91:         }' > "$payload_file"
+ 92:   fi
+ 93:   local response
+ 94:   response=$(curl "${curl_opts[@]}" -X POST \
+ 95:     -H "Content-Type: application/json" \
+ 96:     -d "@$payload_file" \
+ 97:     "$API_BASE/sessions")
+ 98:   rm -f "$payload_file"
+ 99:   # Extract session ID from response
+100:   local session_id
+101:   session_id=$(echo "$response" | jq -r '.name // empty')
+102:   if [[ -n "$session_id" ]]; then
+103:     echo "✅ Session created: $session_id"
+104:     echo "$response" | jq '{name, state, title}'
+105:   else
+106:     echo "Response: $response"
+107:   fi
+108: }
+109: get_session() {
+110:   local session_id="$1"
+111:   curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id" | jq '{
+112:         state,
+113:         title,
+114:         prompt: .prompt[:500],
+115:         automationMode,
+116:         requirePlanApproval,
+117:         output: {
+118:             pullRequest: .output.pullRequest.url
+119:         }
+120:     }'
+121: }
+122: delete_session() {
+123:   local session_id="$1"
+124:   local response
+125:   response=$(curl "${curl_opts[@]}" -X DELETE "$API_BASE/sessions/$session_id")
+126:   if [[ "$response" == "{}" ]]; then
+127:     echo "✅ Session $session_id deleted successfully"
+128:   else
+129:     echo "Response: $response"
+130:   fi
+131: }
+132: list_sessions() {
+133:   local count="${1:-10}"
+134:   curl "${curl_opts[@]}" "$API_BASE/sessions?pageSize=$count" \
+135:     | jq '.sessions[] | {id: .name, state, title, created: .createTime}'
+136: }
+137: send_message() {
+138:   local session_id="$1"
+139:   local message="$2"
+140:   # Support reading message from file if argument is a valid file path
+141:   if [[ -f "$message" ]]; then
+142:     message=$(cat "$message")
+143:   fi
+144:   # Pre-check: Verify session is active
+145:   local state
+146:   state=$(curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id" | jq -r '.state')
+147:   if [[ "$state" == "COMPLETED" || "$state" == "FAILED" ]]; then
+148:     echo "⚠️  WARNING: Session is $state. Attempting to send message anyway (API may hang/timeout)..." >&2
+149:   fi
+150:   mkdir -p "$TMP_DIR"
+151:   local payload_file
+152:   payload_file="$TMP_DIR/jules_message_$(date +%s).json"
+153:   jq -n --arg msg "$message" '{"prompt": $msg}' > "$payload_file"
+154:   local response
+155:   response=$(curl "${curl_opts[@]}" -X POST \
+156:     -H "Content-Type: application/json" \
+157:     -d "@$payload_file" \
+158:     "$API_BASE/sessions/$session_id:sendMessage")
+159:   rm -f "$payload_file"
+160:   if [[ "$response" == "{}" ]]; then
+161:     echo "✅ Message sent successfully to session $session_id"
+162:     echo "   Run 'get-activities $session_id' to see Jules's response"
+163:   else
+164:     echo "Response: $response"
+165:   fi
+166: }
+167: approve_plan() {
+168:   local session_id="$1"
+169:   # Check if session is awaiting approval
+170:   local state
+171:   state=$(curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id" | jq -r '.state')
+172:   if [[ "$state" != "AWAITING_PLAN_APPROVAL" ]]; then
+173:     echo "⚠️ Session is not awaiting plan approval (state: $state)" >&2
+174:     return 1
+175:   fi
+176:   local response
+177:   response=$(curl "${curl_opts[@]}" -X POST \
+178:     -H "Content-Type: application/json" \
+179:     -d '{}' \
+180:     "$API_BASE/sessions/$session_id:approvePlan")
+181:   if [[ "$response" == "{}" ]]; then
+182:     echo "✅ Plan approved for session $session_id"
+183:   else
+184:     echo "Response: $response"
+185:   fi
+186: }
+187: # ============================================================================
+188: # ACTIVITY ACTIONS
+189: # ============================================================================
+190: get_activities() {
+191:   local session_id="$1"
+192:   local count="${2:-5}"
+193:   curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id/activities?pageSize=$count" \
+194:     | jq --arg count "$count" '.activities | sort_by(.createTime) | reverse | .[:($count | tonumber)] | .[] | {
+195:             time: .createTime,
+196:             originator,
+197:             type: (if .messageContent then "message" elif .progressUpdated then "progress" elif .planGenerated then "plan" elif .userMessaged then "user_message" elif .sessionCompleted then "completed" elif .sessionFailed then "failed" else "other" end),
+198:             text: (.messageContent.text // .progressUpdated.title // .progressUpdated.description // .userMessaged.userMessage // .planGenerated.plan.steps[0].title // "")[:400]
+199:         }'
+200: }
+201: get_artifacts() {
+202:   local session_id="$1"
+203:   echo "🔍 Fetching artifacts (diffs, bash output) for session $session_id..."
+204:   curl "${curl_opts[@]}" "$API_BASE/sessions/$session_id/activities?pageSize=50" \
+205:     | jq '[.activities[] | select(.artifacts != null) | .artifacts[]] | {
+206:             changeSets: [.[] | select(.changeSet != null) | {
+207:                 source: .changeSet.source,
+208:                 baseCommit: .changeSet.gitPatch.baseCommitId,
+209:                 commitMessage: .changeSet.gitPatch.suggestedCommitMessage,
+210:                 diff: .changeSet.gitPatch.unidiffPatch
+211:             }],
+212:             bashOutputs: [.[] | select(.bashOutput != null) | {
+213:                 command: .bashOutput.command,
+214:                 exitCode: .bashOutput.exitCode,
+215:                 output: .bashOutput.output[:500]
+216:             }],
+217:             media: [.[] | select(.media != null) | {
+218:                 mimeType: .media.mimeType
+219:             }]
+220:         }'
+221: }
+222: # ============================================================================
+223: # SOURCE ACTIONS
+224: # ============================================================================
+225: list_sources() {
+226:   local count="${1:-10}"
+227:   curl "${curl_opts[@]}" "$API_BASE/sources?pageSize=$count" \
+228:     | jq '.sources[] | {
+229:             name,
+230:             displayName,
+231:             repo: .gitHubRepo.fullName,
+232:             defaultBranch: .gitHubRepo.defaultBranch
+233:         }'
+234: }
+235: get_source() {
+236:   local source_id="$1"
+237:   curl "${curl_opts[@]}" "$API_BASE/$source_id" | jq '.'
+238: }
+239: # ============================================================================
+240: # MAIN DISPATCH
+241: # ============================================================================
+242: case "${1:-}" in
+243:   # Session Actions
+244:   create-session)
+245:     [[ -z "${2:-}" || -z "${3:-}" ]] && {
+246:       echo "Error: source and prompt required" >&2
+247:       usage
+248:       exit 1
+249:     }
+250:     create_session "$2" "$3" "${4:-}"
+251:     ;;
+252:   get-session)
+253:     [[ -z "${2:-}" ]] && {
+254:       echo "Error: session_id required" >&2
+255:       usage
+256:       exit 1
+257:     }
+258:     get_session "$2"
+259:     ;;
+260:   delete-session)
+261:     [[ -z "${2:-}" ]] && {
+262:       echo "Error: session_id required" >&2
+263:       usage
+264:       exit 1
+265:     }
+266:     delete_session "$2"
+267:     ;;
+268:   list-sessions)
+269:     list_sessions "${2:-10}"
+270:     ;;
+271:   send-message)
+272:     [[ -z "${2:-}" || -z "${3:-}" ]] && {
+273:       echo "Error: session_id and message required" >&2
+274:       usage
+275:       exit 1
+276:     }
+277:     send_message "$2" "$3"
+278:     ;;
+279:   approve-plan)
+280:     [[ -z "${2:-}" ]] && {
+281:       echo "Error: session_id required" >&2
+282:       usage
+283:       exit 1
+284:     }
+285:     approve_plan "$2"
+286:     ;;
+287:   # Activity Actions
+288:   get-activities)
+289:     [[ -z "${2:-}" ]] && {
+290:       echo "Error: session_id required" >&2
+291:       usage
+292:       exit 1
+293:     }
+294:     get_activities "$2" "${3:-5}"
+295:     ;;
+296:   get-artifacts)
+297:     [[ -z "${2:-}" ]] && {
+298:       echo "Error: session_id required" >&2
+299:       usage
+300:       exit 1
+301:     }
+302:     get_artifacts "$2"
+303:     ;;
+304:   # Source Actions
+305:   list-sources)
+306:     list_sources "${2:-10}"
+307:     ;;
+308:   get-source)
+309:     [[ -z "${2:-}" ]] && {
+310:       echo "Error: source_id required" >&2
+311:       usage
+312:       exit 1
+313:     }
+314:     get_source "$2"
+315:     ;;
+316:   # Help
+317:   -h | --help | help)
+318:     usage
+319:     ;;
+320:   *)
+321:     echo "Error: Unknown action '${1:-}'" >&2
+322:     usage
+323:     exit 1
+324:     ;;
+325: esac
+</file>
+
+<file path=".agent/scripts/jules-create-prs.sh">
+ 1: #!/bin/bash
+ 2: # Applies a list of patches from Jules and creates Pull Requests.
+ 3: # Safe mode: uses isolated git worktrees, avoids destructive checkout/reset in the main workspace.
+ 4: set -euo pipefail
+ 5: # [FILL: Add Jules session IDs to process. Retrieve them via: bash .agent/scripts/jules-api.sh list-sessions]
+ 6: # Example:
+ 7: IDS=(
+ 8:     # 12345678901234567890
+ 9:     # 98765432109876543210
+10: )
+11: DEFAULT_BRANCH="$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null | sed 's#^origin/##')"
+12: DEFAULT_BRANCH="${DEFAULT_BRANCH:-master}"
+13: for id in "${IDS[@]}"; do
+14:     echo "=================================================="
+15:     echo "🚀 Processing session $id..."
+16:     if [[ ! "$id" =~ ^[0-9]+$ ]]; then
+17:         echo "⚠️  Invalid session ID format: $id. Skipping."
+18:         continue
+19:     fi
+20:     PATCH_FILE=".agent/tmp/${id}.patch"
+21:     if [[ ! -f "$PATCH_FILE" ]]; then
+22:         echo "⚠️  Patch file not found for $id. Skipping."
+23:         continue
+24:     fi
+25:     BRANCH_NAME="test-jules-${id}"
+26:     WORKTREE_DIR=".agent/tmp/worktree-${id}"
+27:     rm -rf "$WORKTREE_DIR"
+28:     git worktree add -B "$BRANCH_NAME" "$WORKTREE_DIR" "origin/$DEFAULT_BRANCH" -q
+29:     (
+30:         cd "$WORKTREE_DIR"
+31:         if git apply --3way "../${id}.patch"; then
+32:             echo "✅ Patch applied successfully."
+33:             RAW_TITLE="$(head -n 1 "../${id}_msg.txt" 2>/dev/null || echo "Jules session ${id}")"
+34:             CLEAN_TITLE="${RAW_TITLE,}"
+35:             COMMIT_TITLE="test(jules): $CLEAN_TITLE"
+36:             git add -A
+37:             if git diff --cached --quiet; then
+38:                 echo "ℹ️  No staged changes after applying patch. Skipping commit."
+39:                 exit 0
+40:             fi
+41:             git commit -m "$COMMIT_TITLE" -m "$(cat "../${id}_msg.txt" 2>/dev/null || echo "Jules session ${id}")" -q
+42:             echo "⬆️ Pushing branch to remote..."
+43:             git push -u origin "$BRANCH_NAME" -q
+44:             echo "🌟 Creating Pull Request..."
+45:             gh pr create \
+46:                 --title "🧪 $COMMIT_TITLE" \
+47:                 --body "This PR contains automated testing improvements generated by Jules for session [$id](https://jules.google.com/task/$id)." \
+48:                 --head "$BRANCH_NAME" \
+49:                 --base "$DEFAULT_BRANCH" || echo "⚠️ PR creation might have failed."
+50:         else
+51:             echo "❌ Failed to apply patch for $id. Skipping."
+52:         fi
+53:     )
+54:     git worktree remove "$WORKTREE_DIR" --force
+55: done
+56: echo "🎉 Finished processing PRs."
+</file>
+
 <file path="README.md">
   1: # Awesome Agentic AI Coding Template
   2: 
   3: > **A production-ready, multi-agent AI coding setup you can drop into any project.**
   4: > Stop configuring AI tools from scratch. Start from a battle-tested baseline that makes every coding agent smarter, safer, and more consistent from day one.
   5: 
-  6: [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-  7: [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
-  8: [![Maintained](https://img.shields.io/badge/Maintained-yes-green.svg)](https://github.com)
-  9: 
- 10: ---
- 11: 
- 12: ## Why This Template Exists
+  6: [👉 **Click here to generate your project from this template** 👈](https://github.com/florian101010/awesome-agentic-AI-coding-template/generate) | [**Jump to Quick Start 🚀**](#quick-start)
+  7: 
+  8: [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+  9: [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+ 10: [![GitHub stars](https://img.shields.io/github/stars/florian101010/awesome-agentic-AI-coding-template?style=social)](https://github.com/florian101010/awesome-agentic-AI-coding-template/stargazers)
+ 11: [![GitHub forks](https://img.shields.io/github/forks/florian101010/awesome-agentic-AI-coding-template?style=social)](https://github.com/florian101010/awesome-agentic-AI-coding-template/network/members)
+ 12: [![GitHub last commit](https://img.shields.io/github/last-commit/florian101010/awesome-agentic-AI-coding-template)](https://github.com/florian101010/awesome-agentic-AI-coding-template/commits/main)
  13: 
- 14: Most developers configure their AI coding tools ad-hoc — a few lines in a `CLAUDE.md`, maybe a Copilot instruction file. The result: agents that hallucinate project conventions, make unsafe mutations, break existing patterns, and need constant correction.
+ 14: ---
  15: 
- 16: This template encodes **production-ready agentic development practices** into a structured, multi-layered instruction system. It covers:
+ 16: ## Why This Template Exists
  17: 
- 18: - **Consistent coding standards** enforced across all agents
- 19: - **Security-first rules** (XSS guards, escaping, forbidden APIs)
- 20: - **Safe AI orchestration patterns** (no hanging loops, MCP-first, strict timeouts)
- 21: - **Pre-built skills and workflows** for the most common engineering tasks
- 22: - **Documentation drift prevention** built in from the start
- 23: - **Git hook integration** for automated quality gates
- 24: 
- 25: Clone it, fill in your project details, and every AI tool working on your codebase will follow the same high-quality standards.
- 26: 
- 27: ---
+ 18: Most developers configure their AI coding tools ad-hoc — a few lines in a `CLAUDE.md`, maybe a Copilot instruction file. The result: agents that hallucinate project conventions, make unsafe mutations, break existing patterns, and need constant correction.
+ 19: 
+ 20: This template encodes **production-ready agentic development practices** into a structured, multi-layered instruction system. It covers:
+ 21: 
+ 22: - **Consistent coding standards** enforced across all agents
+ 23: - **Security-first rules** (XSS guards, escaping, forbidden APIs)
+ 24: - **Safe AI orchestration patterns** (no hanging loops, MCP-first, strict timeouts)
+ 25: - **Pre-built skills and workflows** for the most common engineering tasks
+ 26: - **Documentation drift prevention** built in from the start
+ 27: - **Git hook integration** for automated quality gates
  28: 
- 29: ## Compatible AI Coding Agents
+ 29: Clone it, fill in your project details, and every AI tool working on your codebase will follow the same high-quality standards.
  30: 
- 31: This template provides optimized configurations for all major AI coding tools:
+ 31: ### Who is this for?
  32: 
- 33: | Agent | Config files | Key capability |
- 34: | --- | --- | --- |
- 35: | **Claude Code** (Anthropic) | `CLAUDE.md`, `.claude/rules/`, `.claude/agents/`, `.claude/skills/` | Full skill system, path-scoped rules, subagents, hooks |
- 36: | **GitHub Copilot** (VS Code) | `.github/copilot-instructions.md`, `.github/prompts/`, `.github/instructions/` | Persistent instructions, prompt files, scoped instructions |
- 37: | **Cursor** | `AGENTS.md` | Project-wide context via rules file |
- 38: | **OpenAI Codex** | `AGENTS.md` | Project-wide context |
- 39: | **Kilo Code** | `AGENTS.md`, `.kilocode/rules/` | AGENTS.md context + dedicated project rules (priority 2) |
- 40: | **Google Jules** | `AGENTS.md` (read natively), `README.md` (env setup fallback) | Autonomous async task execution; Jules reads `AGENTS.md` automatically on every task |
- 41: | **Google Gemini / Antigravity** | `GEMINI.md`, `.agent/rules/`, `.agent/workflows/`, `.agent/skills/` | Always-on rules, reusable workflow definitions, skill library |
- 42: 
- 43: One template, every major agent, zero duplication.
- 44: 
- 45: ---
- 46: 
- 47: ## What's Inside
- 48: 
- 49: ```text
- 50: .
- 51: ├── CLAUDE.md                          ← Claude Code — always-on project instructions
- 52: ├── AGENTS.md                          ← Copilot / Cursor / Codex / Jules — always-on
- 53: │
- 54: ├── .github/
- 55: │   ├── copilot-instructions.md        ← VS Code Copilot Chat — persistent instructions
- 56: │   ├── prompts/
- 57: │   │   ├── new-feature.prompt.md      ← /new-feature — structured planning before coding
- 58: │   │   └── review-changes.prompt.md   ← /review-changes — pre-commit rule compliance
- 59: │   ├── instructions/
- 60: │   │   ├── docs.instructions.md       ← Scoped: docs/**/*.md — documentation rules
- 61: │   │   └── qa-audit.instructions.md   ← Scoped: audit files — QA audit process
- 62: │   └── pull_request_template.md       ← PR quality-gate checklist
- 63: │
- 64: ├── .claude/
- 65: │   ├── rules/                         ← Path-scoped always-on rules for Claude
- 66: │   │   ├── coding-standards.md
- 67: │   │   └── markdown-quality.md
- 68: │   ├── agents/
- 69: │   │   └── qa-reviewer.md             ← Claude subagent: automated code reviewer
- 70: │   └── skills/                        ← Claude skill library (15 skills)
- 71: │       ├── brainstorming/
- 72: │       ├── doc-audit/
- 73: │       ├── feature-delivery/
- 74: │       ├── frontend-design/
- 75: │       ├── hotfix/
- 76: │       ├── qa-audit/
- 77: │       ├── release-readiness/
- 78: │       ├── requesting-code-review/
- 79: │       ├── skill-creator/
- 80: │       ├── systematic-debugging/
- 81: │       ├── writing-plans/
- 82: │       └── ...
- 83: │
- 84: ├── .agents/skills/                    ← Universal skill library (works with all tools)
- 85: │
- 86: ├── .kilocode/
- 87: │   └── rules/
- 88: │       └── coding-standards.md         ← Kilo Code project rules (priority 2, above AGENTS.md)
- 89: │
- 90: ├── .agent/
- 91: │   ├── rules/                         ← Gemini/Antigravity/Jules always-on rules
- 92: │   ├── skills/                        ← Jules/Gemini skill library
- 93: │   ├── workflows/                     ← Reusable workflow procedures
- 94: │   │   ├── doc-audit.md
- 95: │   │   ├── feature-delivery.md
- 96: │   │   ├── qa-audit.md
- 97: │   │   ├── release-readiness.md
- 98: │   │   ├── architecture-change.md
- 99: │   │   ├── hotfix.md
-100: │   │   └── pr-analysis.md
-101: │   └── scripts/                       ← Jules API helpers, PR analysis automation
-102: │
-103: └── docs/
-104:     ├── ARCHITECTURE.md                       ← Why the template is structured the way it is
-105:     ├── CUSTOMIZATION-GUIDE.md                ← How to fill every [FILL:] marker, file by file
-106:     ├── SKILLS-CATALOG.md                     ← Every skill: what it does, when to use it, invocation
-107:     └── ai-coding-agents-best-practices.md    ← Full reference: Claude Code, Copilot, Kilo Code, Antigravity
-108: ```
-109: 
-110: ---
-111: 
-112: ## Quick Start
-113: 
-114: ### Option A — Use as GitHub Template
-115: 
-116: Click **"Use this template"** at the top of this page to create a new repo from it.
+ 33: Whether you are a solo indie hacker using Cursor, or an enterprise team orchestrating GitHub Copilot and Google Jules, this template standardizes your AI interactions.
+ 34: 
+ 35: ---
+ 36: 
+ 37: ## Compatible AI Coding Agents
+ 38: 
+ 39: This template provides optimized configurations for all major AI coding tools:
+ 40: 
+ 41: | Agent | Config files | Key capability |
+ 42: | --- | --- | --- |
+ 43: | **Claude Code** (Anthropic) | `CLAUDE.md`, `.claude/rules/`, `.claude/agents/`, `.claude/skills/` | Full skill system, path-scoped rules, subagents, hooks |
+ 44: | **GitHub Copilot** (VS Code) | `.github/copilot-instructions.md`, `.github/prompts/`, `.github/instructions/` | Persistent instructions, prompt files, scoped instructions |
+ 45: | **Cursor** | `AGENTS.md` | Project-wide context via rules file |
+ 46: | **OpenAI Codex** | `AGENTS.md` | Project-wide context |
+ 47: | **Kilo Code** | `AGENTS.md`, `.kilocode/rules/` | AGENTS.md context + dedicated project rules (priority 2) |
+ 48: | **Google Jules** | `AGENTS.md` (read natively), `README.md` (env setup fallback) | Autonomous async task execution; Jules reads `AGENTS.md` automatically on every task |
+ 49: | **Google Gemini / Antigravity** | `GEMINI.md`, `.agent/rules/`, `.agent/workflows/`, `.agent/skills/` | Always-on rules, reusable workflow definitions, skill library |
+ 50: 
+ 51: One template, every major agent, zero duplication.
+ 52: 
+ 53: ---
+ 54: 
+ 55: ## What's Inside
+ 56: 
+ 57: ```text
+ 58: .
+ 59: ├── CLAUDE.md                          ← Claude Code — always-on project instructions
+ 60: ├── AGENTS.md                          ← Copilot / Cursor / Codex / Jules — always-on
+ 61: │
+ 62: ├── .github/
+ 63: │   ├── copilot-instructions.md        ← VS Code Copilot Chat — persistent instructions
+ 64: │   ├── prompts/
+ 65: │   │   ├── new-feature.prompt.md      ← /new-feature — structured planning before coding
+ 66: │   │   └── review-changes.prompt.md   ← /review-changes — pre-commit rule compliance
+ 67: │   ├── instructions/
+ 68: │   │   ├── docs.instructions.md       ← Scoped: docs/**/*.md — documentation rules
+ 69: │   │   └── qa-audit.instructions.md   ← Scoped: audit files — QA audit process
+ 70: │   └── pull_request_template.md       ← PR quality-gate checklist
+ 71: │
+ 72: ├── .claude/
+ 73: │   ├── rules/                         ← Path-scoped always-on rules for Claude
+ 74: │   │   ├── coding-standards.md
+ 75: │   │   └── markdown-quality.md
+ 76: │   ├── agents/
+ 77: │   │   └── qa-reviewer.md             ← Claude subagent: automated code reviewer
+ 78: │   └── skills/                        ← Claude skill library (15 skills)
+ 79: │       ├── brainstorming/
+ 80: │       ├── doc-audit/
+ 81: │       ├── feature-delivery/
+ 82: │       ├── frontend-design/
+ 83: │       ├── hotfix/
+ 84: │       ├── qa-audit/
+ 85: │       ├── release-readiness/
+ 86: │       ├── requesting-code-review/
+ 87: │       ├── skill-creator/
+ 88: │       ├── systematic-debugging/
+ 89: │       ├── writing-plans/
+ 90: │       └── ...
+ 91: │
+ 92: ├── .agents/skills/                    ← Universal skill library (works with all tools)
+ 93: │
+ 94: ├── .kilocode/
+ 95: │   └── rules/
+ 96: │       └── coding-standards.md         ← Kilo Code project rules (priority 2, above AGENTS.md)
+ 97: │
+ 98: ├── .agent/
+ 99: │   ├── rules/                         ← Gemini/Antigravity/Jules always-on rules
+100: │   ├── skills/                        ← Jules/Gemini skill library
+101: │   ├── workflows/                     ← Reusable workflow procedures
+102: │   │   ├── doc-audit.md
+103: │   │   ├── feature-delivery.md
+104: │   │   ├── qa-audit.md
+105: │   │   ├── release-readiness.md
+106: │   │   ├── architecture-change.md
+107: │   │   ├── hotfix.md
+108: │   │   └── pr-analysis.md
+109: │   └── scripts/                       ← Jules API helpers, PR analysis automation
+110: │
+111: └── docs/
+112:     ├── ARCHITECTURE.md                       ← Why the template is structured the way it is
+113:     ├── CUSTOMIZATION-GUIDE.md                ← How to fill every [FILL:] marker, file by file
+114:     ├── SKILLS-CATALOG.md                     ← Every skill: what it does, when to use it, invocation
+115:     └── ai-coding-agents-best-practices.md    ← Full reference: Claude Code, Copilot, Kilo Code, Antigravity
+116: ```
 117: 
-118: ### Option B — Clone and Copy
+118: ---
 119: 
-120: ```bash
-121: git clone https://github.com/yourusername/agentic-coding-template.git
-122: cp -r agentic-coding-template/. your-project/
-123: rm -rf your-project/.git
-124: ```
+120: ## Quick Start
+121: 
+122: ### Option A — Use as GitHub Template
+123: 
+124: Click **"Use this template"** at the top right of this repository, or click the link below to generate it instantly:
 125: 
-126: ### Configure (5 minutes)
+126: [👉 **Click here to generate your project from this template** 👈](https://github.com/florian101010/awesome-agentic-AI-coding-template/generate)
 127: 
-128: **Step 1 — Find all placeholders.** Every customization point is marked with `[FILL: ...]`:
+128: ### Option B — Clone and Copy
 129: 
 130: ```bash
-131: grep -rn "\[FILL:" . --include="*.md" | grep -v README
-132: ```
-133: 
-134: **Step 2 — Fill in the most important files:**
+131: git clone https://github.com/yourusername/agentic-coding-template.git
+132: cp -r agentic-coding-template/. your-project/
+133: rm -rf your-project/.git
+134: ```
 135: 
-136: | File | What to provide |
-137: | --- | --- |
-138: | `CLAUDE.md` | Project name, key constraints, prohibited patterns, test command |
-139: | `AGENTS.md` | Project name, architecture overview, file structure |
-140: | `.github/copilot-instructions.md` | Always-do / never-do rules, key file table |
-141: | `.claude/agents/qa-reviewer.md` | Project-specific review checklist items |
-142: | `.agent/rules/coding-standards.md` | Architecture constraints, stack-specific rules |
+136: ### Configure (5 minutes)
+137: 
+138: **Step 1 — Find all placeholders.** Every customization point is marked with `[FILL: ...]`:
+139: 
+140: ```bash
+141: grep -rn "\[FILL:" . --include="*.md" | grep -v README
+142: ```
 143: 
-144: **Step 3 — Remove what you don't need.** Sections like "Immutable Contract" or "Layout Constraints" are designed to be deleted for projects that don't need them.
+144: **Step 2 — Fill in the most important files:**
 145: 
-146: **Step 4 — Activate Git hooks** (optional but recommended):
-147: 
-148: ```bash
-149: git config core.hooksPath .githooks
-150: chmod +x .githooks/pre-commit .githooks/commit-msg
-151: ```
-152: 
-153: **Step 5 — Set up secrets** (required for Jules AI scripts):
-154: 
-155: ```bash
-156: cp .env.example .env
-157: # Then edit .env and add your JULES_API_KEY
-158: ```
-159: 
-160: The `.env.example` documents every variable the scripts expect. `.env` is git-ignored — never commit real keys.
-161: 
-162: Done. Your AI agents now operate with full project context.
-163: 
-164: ---
-165: 
-166: ## Pre-built Skills
-167: 
-168: Every skill is ready to invoke. Universal skills need no customization; project-specific ones have `[FILL:]` markers.
+146: | File | What to provide |
+147: | --- | --- |
+148: | `CLAUDE.md` | Project name, key constraints, prohibited patterns, test command |
+149: | `AGENTS.md` | Project name, architecture overview, file structure |
+150: | `.github/copilot-instructions.md` | Always-do / never-do rules, key file table |
+151: | `.claude/agents/qa-reviewer.md` | Project-specific review checklist items |
+152: | `.agent/rules/coding-standards.md` | Architecture constraints, stack-specific rules |
+153: 
+154: **Step 3 — Remove what you don't need.** Sections like "Immutable Contract" or "Layout Constraints" are designed to be deleted for projects that don't need them.
+155: 
+156: **Step 4 — Activate Git hooks** (optional but recommended):
+157: 
+158: ```bash
+159: git config core.hooksPath .githooks
+160: chmod +x .githooks/pre-commit .githooks/commit-msg
+161: ```
+162: 
+163: **Step 5 — Set up secrets** (required for Jules AI scripts):
+164: 
+165: ```bash
+166: cp .env.example .env
+167: # Then edit .env and add your JULES_API_KEY
+168: ```
 169: 
-170: | Skill | Invoke | What it does |
-171: | --- | --- | --- |
-172: | **Brainstorming** | `/brainstorming` | Structured ideation — explores user intent and constraints before building |
-173: | **Systematic Debugging** | `/systematic-debugging` | Root-cause analysis — never guess, always trace |
-174: | **QA Audit** | `/qa-audit` | 9-phase security + robustness audit: XSS, rule compliance, race conditions |
-175: | **Doc Audit** | `/doc-audit` | Documentation drift detection across all instruction files and project docs |
-176: | **Feature Delivery** | `/feature-delivery` | End-to-end feature workflow: planning → implementation → QA → docs sync |
-177: | **Release Readiness** | `/release-readiness` | Pre-release quality gate with automated + manual checks |
-178: | **Hotfix** | `/hotfix` | Emergency fix workflow with risk assessment |
-179: | **Requesting Code Review** | `/requesting-code-review` | Structured review request with context |
-180: | **Writing Plans** | `/writing-plans` | Spec-to-plan conversion before any code is written |
-181: | **Frontend Design** | `/frontend-design` | Production-grade UI components — avoids generic AI aesthetics |
-182: | **Architecture Change** | `/architecture-change` | Controlled architecture refactor with ADR requirement |
-183: | **Skill Creator** | `/skill-creator` | Create new custom skills for your project |
-184: | **Find Skills** | `/find-skills` | Discover all available skills |
-185: | **Using Superpowers** | `/using-superpowers` | Skill discovery on session start |
-186: 
-187: ---
-188: 
-189: ## Pre-built Workflows
-190: 
-191: Workflows are detailed, multi-phase procedures that agents follow step by step. Unlike skills (invoked interactively), workflows are loaded by agents working through a structured task.
-192: 
-193: | Workflow | Purpose |
-194: | --- | --- |
-195: | `doc-audit.md` | Comprehensive docs drift audit across all layers |
-196: | `qa-audit.md` | Full-scope quality audit with 9 structured phases |
-197: | `feature-delivery.md` | Feature planning → implementation → QA → docs sync |
-198: | `release-readiness.md` | Pre-release quality gate |
-199: | `architecture-change.md` | ADR-gated architecture refactors |
-200: | `hotfix.md` | Emergency fix with risk assessment |
-201: | `pr-analysis.md` | Pull request quality review |
-202: | `post-merge-analysis.md` | Post-merge verification |
+170: The `.env.example` documents every variable the scripts expect. `.env` is git-ignored — never commit real keys.
+171: 
+172: Done. Your AI agents now operate with full project context.
+173: 
+174: ---
+175: 
+176: ## Pre-built Skills
+177: 
+178: Every skill is ready to invoke. Universal skills need no customization; project-specific ones have `[FILL:]` markers.
+179: 
+180: | Skill | Invoke | What it does |
+181: | --- | --- | --- |
+182: | **Brainstorming** | `/brainstorming` | Structured ideation — explores user intent and constraints before building |
+183: | **Systematic Debugging** | `/systematic-debugging` | Root-cause analysis — never guess, always trace |
+184: | **QA Audit** | `/qa-audit` | 9-phase security + robustness audit: XSS, rule compliance, race conditions |
+185: | **Doc Audit** | `/doc-audit` | Documentation drift detection across all instruction files and project docs |
+186: | **Feature Delivery** | `/feature-delivery` | End-to-end feature workflow: planning → implementation → QA → docs sync |
+187: | **Release Readiness** | `/release-readiness` | Pre-release quality gate with automated + manual checks |
+188: | **Hotfix** | `/hotfix` | Emergency fix workflow with risk assessment |
+189: | **Requesting Code Review** | `/requesting-code-review` | Structured review request with context |
+190: | **Writing Plans** | `/writing-plans` | Spec-to-plan conversion before any code is written |
+191: | **Frontend Design** | `/frontend-design` | Production-grade UI components — avoids generic AI aesthetics |
+192: | **Architecture Change** | `/architecture-change` | Controlled architecture refactor with ADR requirement |
+193: | **Skill Creator** | `/skill-creator` | Create new custom skills for your project |
+194: | **Find Skills** | `/find-skills` | Discover all available skills |
+195: | **Using Superpowers** | `/using-superpowers` | Skill discovery on session start |
+196: 
+197: *(Example: Running the `/qa-audit` skill in your terminal or PR)*
+198: ![QA Audit Skill in Action](docs/assets/qa-audit-demo.gif)
+199: 
+200: ---
+201: 
+202: ## Pre-built Workflows
 203: 
-204: ---
+204: Workflows are detailed, multi-phase procedures that agents follow step by step. Unlike skills (invoked interactively), workflows are loaded by agents working through a structured task.
 205: 
-206: ## Universal Rules Baked In
-207: 
-208: These rules are active for all agents on day one — no setup required.
-209: 
-210: **AI Orchestration Safety**
-211: 
-212: - No hanging bash loops — agents iterate with individual tool calls
-213: - MCP Server Tools over raw CLI calls (GitHub, databases, APIs)
-214: - Every subprocess call has a strict timeout (`{ timeout: 10000 }`)
-215: - No `eval()`, `document.write()`, or stateful browser APIs
+206: | Workflow | Purpose |
+207: | --- | --- |
+208: | `doc-audit.md` | Comprehensive docs drift audit across all layers |
+209: | `qa-audit.md` | Full-scope quality audit with 9 structured phases |
+210: | `feature-delivery.md` | Feature planning → implementation → QA → docs sync |
+211: | `release-readiness.md` | Pre-release quality gate |
+212: | `architecture-change.md` | ADR-gated architecture refactors |
+213: | `hotfix.md` | Emergency fix with risk assessment |
+214: | `pr-analysis.md` | Pull request quality review |
+215: | `post-merge-analysis.md` | Post-merge verification |
 216: 
-217: **Code Quality**
+217: ---
 218: 
-219: - Config files get a structured header comment explaining their schema
-220: - Code comments in English, always
-221: - UTF-8 without BOM on all files
+219: ## Universal Rules Baked In
+220: 
+221: These rules are active for all agents on day one — no setup required.
 222: 
-223: **Documentation Hygiene**
+223: ### AI Orchestration Safety
 224: 
-225: - Markdown tables: aligned `| --- | --- |` separator style
-226: - Every fenced code block includes a language specifier
-227: - Single H1 per file, logical heading hierarchy, unique subheadings
-228: - No duplicate subheadings within a document
+225: - No hanging bash loops — agents iterate with individual tool calls
+226: - MCP Server Tools over raw CLI calls (GitHub, databases, APIs)
+227: - Every subprocess call has a strict timeout (`{ timeout: 10000 }`)
+228: - No `eval()`, `document.write()`, or stateful browser APIs
 229: 
-230: **Git Discipline**
+230: ### Code Quality
 231: 
-232: - Repo-local hooks via `.githooks/`
-233: - Commit format enforced: `type(optional-scope): description`
-234: - Pre-commit quality gates before every commit
+232: - Config files get a structured header comment explaining their schema
+233: - Code comments in English, always
+234: - UTF-8 without BOM on all files
 235: 
-236: ---
+236: ### Documentation Hygiene
 237: 
-238: ## The `[FILL:]` System
-239: 
-240: All project-specific content uses a consistent placeholder convention:
-241: 
-242: ```text
-243: [FILL: project name]
-244: [FILL: describe your tech stack constraints here]
-245: [FILL: e.g. "npm test" or "pytest" or "cargo test"]
-246: ```
-247: 
-248: This makes it trivially easy to scan for unfinished configuration:
-249: 
-250: ```bash
-251: grep -rn "\[FILL:" . --include="*.md"
-252: ```
-253: 
-254: Inline setup annotations use a different marker so they're visually distinct:
-255: 
-256: ```html
-257: <!-- SETUP: Replace this section with your project's file structure -->
-258: ```
-259: 
-260: ---
-261: 
-262: ## Design Principles
-263: 
-264: **1. Multi-layered** — Each AI tool gets its own config file in its native format. Claude reads `CLAUDE.md` and `.claude/`; Copilot reads `.github/copilot-instructions.md`; Jules reads `AGENTS.md` natively; Antigravity reads `.agent/`. One source of truth, delivered in every dialect.
-265: 
-266: **2. Universal + project-specific** — Universal rules (security, orchestration, markdown quality) ship ready-to-use. Project-specific rules are clearly marked with `[FILL: ...]` and isolated from the universal content.
-267: 
-268: **3. Prevention over correction** — Rules are designed to stop agents from making dangerous changes — not to catch mistakes after the fact. Security guards and forbidden patterns are enforced upfront.
-269: 
-270: **4. Drift-free** — Documentation drift is a leading cause of agent misbehavior. The doc-audit skill and workflow track every file that must stay in sync and surface drift proactively.
-271: 
-272: **5. Skill-based** — Complex multi-step tasks (audits, feature delivery, debugging) are codified as invocable skills. Skills are reusable, composable, and version-controlled alongside your code.
-273: 
-274: ---
-275: 
-276: ## Documentation
-277: 
-278: | Doc | What it covers |
-279: | --- | --- |
-280: | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Why the template is structured the way it is — design decisions, directory map, layering principles |
-281: | [CUSTOMIZATION-GUIDE.md](docs/CUSTOMIZATION-GUIDE.md) | How to fill every `[FILL:]` marker, file by file, with good/bad examples |
-282: | [SKILLS-CATALOG.md](docs/SKILLS-CATALOG.md) | Every skill: what it does, when to invoke it, which agents support it |
-283: | [ai-coding-agents-best-practices.md](docs/ai-coding-agents-best-practices.md) | Deep reference guide for Claude Code, Copilot, Kilo Code, and Antigravity |
+238: - Markdown tables: aligned `| --- | --- |` separator style
+239: - Every fenced code block includes a language specifier
+240: - Single H1 per file, logical heading hierarchy, unique subheadings
+241: - No duplicate subheadings within a document
+242: 
+243: ### Git Discipline
+244: 
+245: - Repo-local hooks via `.githooks/`
+246: - Commit format enforced: `type(optional-scope): description`
+247: - Pre-commit quality gates before every commit
+248: 
+249: ---
+250: 
+251: ## The `[FILL:]` System
+252: 
+253: All project-specific content uses a consistent placeholder convention:
+254: 
+255: ```text
+256: [FILL: project name]
+257: [FILL: describe your tech stack constraints here]
+258: [FILL: e.g. "npm test" or "pytest" or "cargo test"]
+259: ```
+260: 
+261: This makes it trivially easy to scan for unfinished configuration:
+262: 
+263: ```bash
+264: grep -rn "\[FILL:" . --include="*.md"
+265: ```
+266: 
+267: Inline setup annotations use a different marker so they're visually distinct:
+268: 
+269: ```html
+270: <!-- SETUP: Replace this section with your project's file structure -->
+271: ```
+272: 
+273: ---
+274: 
+275: ## Design Principles
+276: 
+277: **1. Multi-layered** — Each AI tool gets its own config file in its native format. Claude reads `CLAUDE.md` and `.claude/`; Copilot reads `.github/copilot-instructions.md`; Jules reads `AGENTS.md` natively; Antigravity reads `.agent/`. One source of truth, delivered in every dialect.
+278: 
+279: **2. Universal + project-specific** — Universal rules (security, orchestration, markdown quality) ship ready-to-use. Project-specific rules are clearly marked with `[FILL: ...]` and isolated from the universal content.
+280: 
+281: **3. Prevention over correction** — Rules are designed to stop agents from making dangerous changes — not to catch mistakes after the fact. Security guards and forbidden patterns are enforced upfront.
+282: 
+283: **4. Drift-free** — Documentation drift is a leading cause of agent misbehavior. The doc-audit skill and workflow track every file that must stay in sync and surface drift proactively.
 284: 
-285: ---
+285: **5. Skill-based** — Complex multi-step tasks (audits, feature delivery, debugging) are codified as invocable skills. Skills are reusable, composable, and version-controlled alongside your code.
 286: 
-287: ## Contributing
+287: ---
 288: 
-289: Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+289: ## Documentation
 290: 
-291: Good contribution ideas:
-292: 
-293: - New universal skills (performance auditing, accessibility checking, etc.)
-294: - Agent-specific optimizations as new tools emerge
-295: - Improved workflow definitions
-296: - Bug fixes and clarity improvements to existing skills
+291: | Doc | What it covers |
+292: | --- | --- |
+293: | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | Why the template is structured the way it is — design decisions, directory map, layering principles |
+294: | [CUSTOMIZATION-GUIDE.md](docs/CUSTOMIZATION-GUIDE.md) | How to fill every `[FILL:]` marker, file by file, with good/bad examples |
+295: | [SKILLS-CATALOG.md](docs/SKILLS-CATALOG.md) | Every skill: what it does, when to invoke it, which agents support it |
+296: | [ai-coding-agents-best-practices.md](docs/ai-coding-agents-best-practices.md) | Deep reference guide for Claude Code, Copilot, Kilo Code, and Antigravity |
 297: 
 298: ---
 299: 
-300: ## License
+300: ## Contributing
 301: 
-302: MIT — see [LICENSE](LICENSE).
+302: Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 303: 
-304: ---
+304: Good contribution ideas:
 305: 
-306: ## Acknowledgments
-307: 
-308: This template builds on top of the work of the teams and individuals behind these tools and projects:
-309: 
-310: **AI coding agents:**
-311: 
-312: | Tool | Repo / Docs |
-313: | --- | --- |
-314: | Claude Code (Anthropic) | [github.com/anthropics/claude-code](https://github.com/anthropics/claude-code) |
-315: | GitHub Copilot (Microsoft) | [docs.github.com/copilot](https://docs.github.com/en/copilot) |
-316: | Google Jules | [jules.google/docs](https://jules.google/docs) |
-317: | Google Gemini / Antigravity | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
-318: | Cursor | [cursor.com](https://cursor.com) |
-319: | OpenAI Codex | [platform.openai.com/docs/codex](https://platform.openai.com/docs) |
-320: | Kilo Code | [github.com/Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) |
-321: 
-322: **Skills & standards:**
-323: 
-324: | Project | What it contributed |
-325: | --- | --- |
-326: | [obra/superpowers](https://github.com/obra/superpowers) by Jesse Vincent (@obra) | `using-superpowers`, `find-skills`, `systematic-debugging` skills |
-327: | [skills.sh](https://skills.sh) | `frontend-design`, `skill-creator` skills + the skills marketplace ecosystem |
-328: | [Agent Skills Open Standard](https://agentskills.io) | The cross-agent `SKILL.md` format used throughout |
-329: 
-330: ---
-331: 
-332: <div align="center">
-333: 
-334: **Stop configuring. Start building.**
-335: 
-336: *Clone once. Use everywhere.*
-337: 
-338: </div>
+306: - New universal skills (performance auditing, accessibility checking, etc.)
+307: - Agent-specific optimizations as new tools emerge
+308: - Improved workflow definitions
+309: - Bug fixes and clarity improvements to existing skills
+310: 
+311: ---
+312: 
+313: ## License
+314: 
+315: MIT — see [LICENSE](LICENSE).
+316: 
+317: ---
+318: 
+319: ## Acknowledgments
+320: 
+321: This template builds on top of the work of the teams and individuals behind these tools and projects:
+322: 
+323: **AI coding agents:**
+324: 
+325: | Tool | Repo / Docs |
+326: | --- | --- |
+327: | Claude Code (Anthropic) | [github.com/anthropics/claude-code](https://github.com/anthropics/claude-code) |
+328: | GitHub Copilot (Microsoft) | [docs.github.com/copilot](https://docs.github.com/en/copilot) |
+329: | Google Jules | [jules.google/docs](https://jules.google/docs) |
+330: | Google Gemini / Antigravity | [github.com/google-gemini/gemini-cli](https://github.com/google-gemini/gemini-cli) |
+331: | Cursor | [cursor.com](https://cursor.com) |
+332: | OpenAI Codex | [platform.openai.com/docs/codex](https://platform.openai.com/docs) |
+333: | Kilo Code | [github.com/Kilo-Org/kilocode](https://github.com/Kilo-Org/kilocode) |
+334: 
+335: **Skills & standards:**
+336: 
+337: | Project | What it contributed |
+338: | --- | --- |
+339: | [obra/superpowers](https://github.com/obra/superpowers) by Jesse Vincent (@obra) | `using-superpowers`, `find-skills`, `systematic-debugging` skills |
+340: | [skills.sh](https://skills.sh) | `frontend-design`, `skill-creator` skills + the skills marketplace ecosystem |
+341: | [Agent Skills Open Standard](https://agentskills.io) | The cross-agent `SKILL.md` format used throughout |
+342: 
+343: ---
+344: 
+345: **Stop configuring. Start building.**
+346: 
+347: *Clone once. Use everywhere.*
 </file>
 
 </files>
