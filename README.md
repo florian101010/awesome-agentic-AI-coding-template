@@ -1,5 +1,7 @@
 # Awesome Agentic AI Coding Template
 
+![Agentic AI Template Demo](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExMDlxcmMzaWZpaGN6MnpuNWQ2eHNzNnM1dWJ5b3RteXk3Y2tveW04OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/dxmXDNIP4nrIpw7VDP/giphy.gif)
+
 > **A production-ready, multi-agent AI coding setup you can drop into any project.**
 > Stop configuring AI tools from scratch. Start from a battle-tested baseline that makes every coding agent smarter, safer, and more consistent from day one.
 
