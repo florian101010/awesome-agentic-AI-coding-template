@@ -29,6 +29,7 @@ This template encodes **production-ready agentic development practices** into a 
 Clone it, fill in your project details, and every AI tool working on your codebase will follow the same high-quality standards.
 
 ### Who is this for?
+
 Whether you are a solo indie hacker using Cursor, or an enterprise team orchestrating GitHub Copilot and Google Jules, this template standardizes your AI interactions.
 
 ---
@@ -219,27 +220,27 @@ Workflows are detailed, multi-phase procedures that agents follow step by step. 
 
 These rules are active for all agents on day one — no setup required.
 
-**AI Orchestration Safety**
+### AI Orchestration Safety
 
 - No hanging bash loops — agents iterate with individual tool calls
 - MCP Server Tools over raw CLI calls (GitHub, databases, APIs)
 - Every subprocess call has a strict timeout (`{ timeout: 10000 }`)
 - No `eval()`, `document.write()`, or stateful browser APIs
 
-**Code Quality**
+### Code Quality
 
 - Config files get a structured header comment explaining their schema
 - Code comments in English, always
 - UTF-8 without BOM on all files
 
-**Documentation Hygiene**
+### Documentation Hygiene
 
 - Markdown tables: aligned `| --- | --- |` separator style
 - Every fenced code block includes a language specifier
 - Single H1 per file, logical heading hierarchy, unique subheadings
 - No duplicate subheadings within a document
 
-**Git Discipline**
+### Git Discipline
 
 - Repo-local hooks via `.githooks/`
 - Commit format enforced: `type(optional-scope): description`
@@ -341,10 +342,6 @@ This template builds on top of the work of the teams and individuals behind thes
 
 ---
 
-<div align="center">
-
 **Stop configuring. Start building.**
 
 *Clone once. Use everywhere.*
-
-</div>
