@@ -3,7 +3,7 @@
 > **A production-ready, multi-agent AI coding setup you can drop into any project.**
 > Stop configuring AI tools from scratch. Start from a battle-tested baseline that makes every coding agent smarter, safer, and more consistent from day one.
 
-[👉 **Click here to generate your project from this template** 👈](https://github.com/florian101010/awesome-agentic-AI-coding-template/generate) | [**Jump to Quick Start 🚀**](#quick-start)
+[👉 **Click here to learn how to use this template** �](#quick-start)
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
@@ -120,7 +120,7 @@ One template, every major agent, zero duplication.
 
 ### Option A — Use as GitHub Template
 
-[👉 **Click here to generate your project from this template immediately** 👈](https://github.com/florian101010/awesome-agentic-AI-coding-template/generate)
+Click **"Use this template"** at the top of this repository to create a new repository from it.
 
 ### Option B — Clone and Copy
 
