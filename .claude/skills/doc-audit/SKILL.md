@@ -60,7 +60,7 @@ Compare the **actual** file tree against **every file-map section** in agent ins
 | `CLAUDE.md` | `## File Map` |
 | [FILL: `docs/README.md`] | [FILL: Section name for file tree] |
 
-3. Every real file/directory must appear in all file maps. Flag any missing entries.
+1. Every real file/directory must appear in all file maps. Flag any missing entries.
 
 ---
 

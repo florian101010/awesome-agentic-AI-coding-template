@@ -1,6 +1,34 @@
 config:
   default: true
-  MD013: false
+
+  # ── Line length ──────────────────────────────────────────────────────────
+  MD013: false   # Line length — disabled globally (URLs and tables are unbreakable)
+
+  # ── Blank-line spacing (compact style used throughout skill/workflow files) ─
+  MD012: false   # Multiple consecutive blank lines — double blanks used as visual spacers in PR template and skills
+  MD022: false   # Blanks around headings — skills use compact heading style intentionally
+  MD031: false   # Blanks around fences — consistent with compact list style in skills
+  MD032: false   # Blanks around lists — compact list style is the template's convention (268 violations)
+
+  # ── HTML & emphasis patterns ──────────────────────────────────────────────
+  MD033: false   # Inline HTML — <HARD-GATE> and similar semantic elements are intentional in skill files
+  MD036: false   # Emphasis as heading — **bold** used as pseudo-headings is an established skill pattern
+
+  # ── Code blocks ──────────────────────────────────────────────────────────
+  MD040: false   # Fenced code language — pseudo-code and output blocks intentionally omit language specifiers
+
+  # ── Document structure ────────────────────────────────────────────────────
+  MD024: false   # Duplicate headings — section names like "## Output" and "## Steps" repeat across skill files by design
+  MD041: false   # First line heading — skill fragment files are not standalone documents
+
+  # ── Tables ───────────────────────────────────────────────────────────────
+  MD055: false   # Table pipe style — mixed pipe style in some skill tables
+  MD056: false   # Table column count — some skill tables use intentional asymmetric columns
+  MD060: false   # Table column style — compact pipe formatting used in skill files
+
+  # ── Links ────────────────────────────────────────────────────────────────
+  MD051: false   # Link fragments — anchor generation differs between renderers (GitHub vs markdownlint)
+
 ignores:
   - .github/instructions/*.md
   - .github/prompts/*.md
