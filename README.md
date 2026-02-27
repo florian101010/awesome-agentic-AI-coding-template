@@ -137,7 +137,17 @@ cp -r awesome-agentic-AI-coding-template/. your-project/
 rm -rf your-project/.git
 ```
 
-### Configure (5 minutes)
+### Configure (2 minutes with setup script)
+
+Run the interactive setup script to populate the most common `[FILL:]` markers automatically:
+
+```bash
+bash setup.sh
+```
+
+The script prompts for your project name, description, tech stack, test/lint/build commands, constraints, and prohibitions — then writes them into `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`. It also offers to activate git hooks at the end.
+
+### Configure (manual — 5 minutes)
 
 **Step 1 — Find all placeholders.** Every customization point is marked with `[FILL: ...]`:
 
