@@ -40,27 +40,30 @@ jobs:
     name: Paranoid PR Analysis & AI Review
     runs-on: ubuntu-latest
     needs: [secret-scan, script-analysis]
-    # Only run if the Jules API key is configured as a repository secret
-    if: ${{ secrets.JULES_API_KEY != '' }}
+    # Steps are skipped individually if JULES_API_KEY is not configured
+    env:
+      JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
     steps:
       - name: Checkout Code
+        if: env.JULES_API_KEY != ''
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
       - name: Install Dependencies (jq, python)
+        if: env.JULES_API_KEY != ''
         run: |
           sudo apt-get update
           sudo apt-get install -y jq python3
 
       - name: Authenticate with GitHub CLI
+        if: env.JULES_API_KEY != ''
         run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: Run analyze_pr.sh
+        if: env.JULES_API_KEY != ''
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # Set up Jules API Key as a repository secret
-          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
         run: |
           # Pass the PR number to the script
           bash .agent/scripts/analyze_pr.sh ${{ github.event.pull_request.number }}
