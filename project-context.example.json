@@ -1,0 +1,19 @@
+{
+  "project_name": "Acme Notes",
+  "description": "Collaborative notes platform for product and engineering teams.",
+  "tech_stack": "TypeScript, React, Node.js",
+  "constraints": [
+    "All API access goes through src/api/client.ts",
+    "No runtime framework changes without ADR"
+  ],
+  "prohibitions": [
+    "No direct commits to main",
+    "No secrets in repository"
+  ],
+  "commands": {
+    "test": "npm test",
+    "lint": "npm run lint",
+    "build": "npm run build",
+    "check_all": "bash scripts/check-all.sh"
+  }
+}
