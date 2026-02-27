@@ -103,5 +103,10 @@ Remind them to:
 git config core.hooksPath .githooks
 
 # Verify no markers remain
-grep -rn "\[FILL:" . --include="*.md" | grep -v README | grep -v CHANGELOG | grep -v CUSTOMIZATION-GUIDE | grep -v SKILLS-CATALOG
+grep -rn "\[FILL:" . --include="*.md" --include="*.yaml" --include="*.yml" --include="*.cursorrules" \
+  | grep -v ".git/" \
+  | grep -v "README.md" \
+  | grep -v "CHANGELOG.md" \
+  | grep -v "docs/CUSTOMIZATION-GUIDE.md" \
+  | grep -v "docs/SKILLS-CATALOG.md"
 ```
