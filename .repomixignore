@@ -1,6 +1,6 @@
 # Repomix Ignore File
-# Dieses File definiert, welche Dateien und Ordner vom Repomix-Scan ausgeschlossen werden sollen.
-# Ziel: Token sparen und irrelevante Dateien (Binaries, Logs, Builds) entfernen.
+# Defines files and folders to exclude from Repomix scans.
+# Goal: Save tokens and remove irrelevant files (binaries, logs, builds).
 
 # --- Dependencies & Build ---
 node_modules/
@@ -13,15 +13,13 @@ coverage/
 
 # --- Version Control & IDE ---
 .git/
-.github/
 .vscode/
 .idea/
 .cursor/
-.claude/
 .DS_Store
 Thumbs.db
 
-# --- Logs & Temporay Files ---
+# --- Logs & Temporary Files ---
 logs/
 *.log
 npm-debug.log*
@@ -32,7 +30,7 @@ pnpm-debug.log*
 .env
 .env.*
 
-# --- Lock Files & Dummy Configs (Oft zu groß/unnötig für LLM-Kontext) ---
+# --- Lock Files & Dummy Configs (Often too large/irrelevant for LLM context) ---
 package.json
 package-lock.json
 yarn.lock

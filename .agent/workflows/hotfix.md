@@ -5,57 +5,57 @@ description: Controlled hotfix workflow balancing speed and safety
 
 # Workflow: Hotfix
 
-> Schneller Fix unter Zeitdruck, ohne Governance zu verlieren.
+> Fast fix under time pressure without losing governance.
 
 ---
 
 ## Phase 1 — Incident Triage
 
-- Fehlerbild + Impact dokumentieren
-- Schweregrad festlegen
-- Minimalen Fix-Scope definieren
+- Document the error pattern and impact
+- Determine severity level
+- Define minimum fix scope
 
 ---
 
 ## Phase 2 — Minimal Fix
 
-- Nur root-cause-nahen, kleinsten wirksamen Eingriff umsetzen
-- Keine Nebenbaustellen
-- Bestehende Patterns respektieren
+- Apply only the smallest effective fix closest to the root cause
+- Do not address side issues
+- Respect existing patterns
 
 ---
 
-## Phase 3 — Kritischer Smoke-Test
+## Phase 3 — Critical Smoke Test
 
-Mindestens:
+At minimum:
 
-- Betroffener Flow funktioniert wieder
-- Keine offensichtlichen Regressionen
-- Keine neuen kritischen Konsolenfehler
+- Affected flow works again
+- No obvious regressions
+- No new critical console errors
 
 ---
 
-## Phase 4 — Pflicht-Dokumentation
+## Phase 4 — Mandatory Documentation
 
-Auch im Hotfix-Fall erforderlich:
+Required even for hotfixes:
 
-- `CHANGELOG.md` mit Hotfix-Eintrag
-- Betroffene Referenzdoku (mindestens kurz)
-- ADR nur wenn Architektur betroffen
+- `CHANGELOG.md` with hotfix entry
+- Affected reference docs (at minimum a brief note)
+- ADR only if architecture is affected
 
 ---
 
 ## Phase 5 — Post-Hotfix Follow-up
 
-- Offene technische Schulden erfassen
-- Ggf. Folge-Task für nachhaltige Lösung planen
+- Capture open technical debt
+- Plan a follow-up task for a sustainable solution if needed
 
 ---
 
-## Hotfix-DoD
+## Hotfix DoD
 
-- [ ] Incident mitigiert
-- [ ] Smoke bestanden
-- [ ] Changelog aktualisiert
-- [ ] Follow-up dokumentiert
-- [ ] `.githooks/pre-commit` erfolgreich ausgeführt
+- [ ] Incident mitigated
+- [ ] Smoke test passed
+- [ ] Changelog updated
+- [ ] Follow-up documented
+- [ ] Pre-commit checks passed

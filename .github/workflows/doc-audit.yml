@@ -31,9 +31,25 @@ jobs:
 
       - name: Run custom doc-drift script (Stub)
         run: |
-          echo "🔍 Running documentation drift audit..."
-          # Since the doc-audit workflow is defined as an agent task in
-          # .agent/workflows/doc-audit.md, this step would ideally use Jules
-          # to instantiate an agent session to run the audit.
-          # For now, it's a placeholder you can replace with a script call.
-          echo "✅ Please ensure the agent workflow /doc-audit is executed for deep drift detection."
+          echo "Running documentation drift audit..."
+          # Check for broken internal markdown links
+          broken_links=0
+          for file in $(find . -name '*.md' -not -path './.git/*' -not -path './node_modules/*'); do
+            # Find markdown links to local files and verify they exist
+            grep -oP '\]\((?!http|#|mailto)([^)]+)\)' "$file" | sed 's/\](//;s/)//' | while read -r link; do
+              # Strip anchor fragments
+              target=$(echo "$link" | sed 's/#.*//')
+              if [ -n "$target" ] && [ ! -e "$target" ]; then
+                echo "BROKEN LINK in $file: $link"
+                broken_links=$((broken_links + 1))
+              fi
+            done
+          done
+          # Check for stale [FILL:] markers in non-template files
+          fill_count=$(grep -rn '\[FILL:' . --include='*.md' \
+            --exclude='README.md' \
+            --exclude='CUSTOMIZATION-GUIDE.md' \
+            --exclude='CHANGELOG.md' \
+            --exclude-dir='.git' | wc -l)
+          echo "Found $fill_count [FILL:] markers remaining in non-excluded files."
+          echo "For deep drift detection, run the agent workflow /doc-audit."

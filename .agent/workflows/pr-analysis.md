@@ -1,11 +1,11 @@
 ---
-description: A rigorous workflow for analyzing Pull Requests and ensuring adherence to the strict Vanilla JS / WebView architecture of this repository.
+description: A rigorous workflow for analyzing Pull Requests and ensuring adherence to project architecture and coding rules.
 trigger: when a PR is opened or updated, or when the user says "Analyze PRs"
 ---
 
-# PR Analysis Workflow (project Reco Template)
+# PR Analysis Workflow
 
-This workflow defines the standard operating procedure for auditing Pull Requests (PRs) in the `your-project` project. It ensures that no external dependencies are introduced, WebView compatibility is maintained, and all changes align with `AGENTS.md`.
+This workflow defines the standard operating procedure for auditing Pull Requests (PRs). It ensures that architectural constraints are maintained, no prohibited patterns are introduced, and all changes align with `AGENTS.md`.
 
 **Non-Interactive Guarantee:** All checks must be performed non-interactively using MCP tools or read-only shell commands.
 
@@ -22,7 +22,7 @@ This workflow defines the standard operating procedure for auditing Pull Request
 
    ```bash
    rm -rf .agent/tmp && mkdir -p .agent/tmp
-   echo "🧹 Workspace cleaned."
+   echo "Workspace cleaned."
    ```
 
 2. **Jules Context & Forensics (Optional):**
@@ -42,18 +42,18 @@ This workflow defines the standard operating procedure for auditing Pull Request
 
 1. **List Open PRs & Identify Batch Conflicts:**
    Use the `mcp_github-mcp-server_list_pull_requests` tool to fetch open PRs.
-   *🆕 Batch Strategy:* If multiple PRs are open, group them by affected files. Actively hunt for competing AI-generated PRs that attempt to introduce the same base infrastructure simultaneously (e.g., different variations of `tests/test-helper.js`). Choose ONE clear winner that is robust and secure, and REJECT the others to prevent overlapping merge conflicts.
+   *Batch Strategy:* If multiple PRs are open, group them by affected files. Actively hunt for competing AI-generated PRs that attempt to introduce the same base infrastructure simultaneously. Choose ONE clear winner that is robust and secure, and REJECT the others to prevent overlapping merge conflicts.
 
 2. **Check for "Dirty Branching" & Artifact Pollution:**
    Check the commit history of the PR. If you see > 10 commits or commits unrelated to the PR title, the branch is **contaminated**. Instruct a rebase.
-   *🆕 Pollution Check:* Ensure no temporary agent files (`.patch`, `.diff`, contents from `.agent/tmp/`) are mistakenly included in the PR diff. If found, **REJECT**.
+   *Pollution Check:* Ensure no temporary agent files (`.patch`, `.diff`, contents from `.agent/tmp/`) are mistakenly included in the PR diff. If found, **REJECT**.
 
 3. **Empty Diff Check (Superseded):**
-   *🆕 Diff Check:* Ensure the PR actually contains a valid diff against `master`. If the changes have already been merged out-of-band or superseded, **REJECT** the PR.
+   *Diff Check:* Ensure the PR actually contains a valid diff against the default branch. If the changes have already been merged out-of-band or superseded, **REJECT** the PR.
 
 4. **Check for Merge Conflicts (Strict Blocker):**
    Use the `mcp_github-mcp-server_pull_request_read` tool (`method="get"`). Check the `mergeable` status.
-   *🆕 Conflict Blocker:* If the PR has merge conflicts (e.g., `mergeable` is false or `mergeable_state` is `dirty`/`conflicting`), you **MUST NOT APPROVE** the PR under any circumstances. It is strictly forbidden. Draft a `REQUEST_CHANGES` or `COMMENT` review instructing the author to rebase and resolve conflicts first.
+   *Conflict Blocker:* If the PR has merge conflicts (e.g., `mergeable` is false or `mergeable_state` is `dirty`/`conflicting`), you **MUST NOT APPROVE** the PR under any circumstances. Draft a `REQUEST_CHANGES` or `COMMENT` review instructing the author to rebase and resolve conflicts first.
 
 5. **Check Existing Review Status:**
    Fetch existing reviews. If already `APPROVED`, note this in the report.
@@ -62,42 +62,44 @@ This workflow defines the standard operating procedure for auditing Pull Request
 
 **CRITICAL INSTRUCTION:** You must perform these steps for **EVERY SINGLE OPEN PR**, one by one.
 
-### 🔁 Execution Loop (For Each PR)
+### Execution Loop (For Each PR)
 
 1. **Isolate & Fetch (Forensics):**
-   - Run the automated forensics script:
+   - Run the automated forensics script (if available):
 
      ```bash
      .agent/scripts/analyze_pr.sh <PR_NUMBER>
      ```
 
-   - This script generates `.agent/tmp/pr_<PR_NUMBER>.diff`, runs threat/asset scans, and **fetches Gemini AI reviews** into `.agent/tmp/pr_<PR_NUMBER>_gemini_report.md`. Review these insights carefully as they often catch subtle logic bugs.
+   - This script generates `.agent/tmp/pr_<PR_NUMBER>.diff` and runs threat scans. If a Gemini AI review is configured, it outputs to `.agent/tmp/pr_<PR_NUMBER>_gemini_report.md`.
 
-2. **The "Gemini" Second Opinion:**
+2. **The "Gemini" Second Opinion (if configured):**
    - Review the generated `.agent/tmp/pr_<PR_NUMBER>_gemini_report.md`.
-   - Do Gemini's suggestions align with repository constraints?
-   - If Gemini suggests a fix, verify it manually before requesting changes.
+   - Do the suggestions align with repository constraints?
+   - If a fix is suggested, verify it manually before requesting changes.
 
-3. **The "Vanilla" Check (CRITICAL Line-by-Line Verification):**
-   - Does the PR add runtime dependencies, external CDN script tags (`<script src="http://...">`), or framework-based runtime architecture? -> **BLOCK & REJECT**.
-   - Dev/test tooling in `package.json` is allowed if runtime constraints remain intact.
+3. **Architecture Constraint Check (CRITICAL Line-by-Line Verification):**
+   <!-- SETUP: Customize these checks to match your project's constraints from AGENTS.md. -->
+   - [FILL: Primary architecture constraint check — e.g. "Does the PR add runtime dependencies or framework imports? -> BLOCK & REJECT"]
+   - [FILL: Secondary constraint — e.g. "Dev/test tooling in package.json is allowed if runtime constraints remain intact"]
 
 4. **The CSS & Layout Check:**
-   - Are there new interactive elements? Ensure `touch-action: manipulation;` and `-webkit-tap-highlight-color: transparent;` are used.
-   - Are there new `:hover` states? They MUST be wrapped in `@media (hover: hover) and (pointer: fine)`.
-   - Has `overscroll-behavior: none` been removed? -> **REJECT**.
+   <!-- SETUP: Customize or remove these checks based on your project's UI conventions. -->
+   - [FILL: CSS/layout rules — e.g. "Are interactive elements using proper touch/hover handling?"]
+   - [FILL: Additional style rules — e.g. "Are :hover states properly guarded for touch devices?"]
 
-5. **The JS State & Config Check:**
-   - Are `config/*.js` files adhering to the IIFE returning `Object.freeze()` pattern?
-   - Is `localStorage`, `sessionStorage`, or `postMessage` being used? -> **REJECT**.
+5. **The Code Quality & Config Check:**
+   <!-- SETUP: Customize these checks to match your project's coding patterns. -->
+   - [FILL: Config pattern check — e.g. "Are config files following the required pattern?"]
+   - [FILL: Prohibited API check — e.g. "Is any prohibited API being used? -> REJECT"]
    - Are relative paths correct (no leading `/` or `./`)?
 
 6. **The UI / Copy Check:**
-   - Does any new German copy use formal form ("Sie" / "Ihre")? -> **Must use informal du/dein/euch**.
+   - [FILL: Language/copy rules — e.g. "Does new copy follow the project's style guide?"]
 
-7. **The Avatar Check:**
-   - Do new avatars follow config conventions (`template-assets/brand_avatars/*`)?
-   - Is `your-asset-helper(item)` used instead of manual `<img>` tags?
+7. **The Asset Check:**
+   - [FILL: Asset conventions — e.g. "Do new assets follow the config conventions?"]
+   - [FILL: Asset helper check — e.g. "Is the designated asset helper function used?"]
 
 8. **Impact Analysis & Prioritization:**
    Document for each PR in your internal notes:
@@ -111,8 +113,8 @@ This workflow defines the standard operating procedure for auditing Pull Request
 **Goal:** Ensure consistency across the ecosystem.
 
 1. **Check Documentation:**
-   - If UI/Config changed, was `docs/CONFIG-REFERENCE.md` or `docs/STYLING-GUIDE.md` updated?
-   - Was `docs/CHANGELOG.md` updated for user-facing changes?
+   - If code/config changed, were the relevant docs updated?
+   - Was `CHANGELOG.md` updated for user-facing changes?
 
 ## 4. Batch Review & Merge Strategy Summary
 
@@ -147,21 +149,21 @@ This workflow defines the standard operating procedure for auditing Pull Request
    - [ ] PR is explicitly `mergeable` right now? (No conflicts)
    - [ ] No temporary files or artifact pollution included?
 
-   ### Logic & Vanilla Constraints
-   - [ ] No runtime `npm` dependencies or external CDNs added?
-   - [ ] Config files maintain IIFE/Object.freeze pattern?
-   - [ ] No `localStorage` or `postMessage` used?
+   ### Architecture & Coding Rules
+   - [ ] [FILL: Primary constraint verified? e.g. "No runtime dependencies added?"]
+   - [ ] [FILL: Config pattern maintained?]
+   - [ ] [FILL: Prohibited APIs not used?]
 
-   ### WebView UX
-   - [ ] `touch-action: manipulation` used correctly?
-   - [ ] `:hover` states hidden behind pointer media queries?
-   - [ ] Informal German ("du") maintained (no "Sie/Ihre")?
+   ### UX & Presentation
+   - [ ] [FILL: UI convention 1 verified?]
+   - [ ] [FILL: UI convention 2 verified?]
+   - [ ] [FILL: Copy/language rules followed?]
 
    ### Assets
-   - [ ] Avatar paths correct and verified locally?
-   - [ ] `your-asset-helper` used correctly?
+   - [ ] [FILL: Asset paths correct?]
+   - [ ] [FILL: Asset helper used correctly?]
 
-   **VERDICT:** ✅ APPROVED / ❌ REJECT (reason)
+   **VERDICT:** APPROVED / REJECT (reason)
    ```
 
 4. **Post Comments (Mandatory Tools)**
@@ -172,39 +174,38 @@ This workflow defines the standard operating procedure for auditing Pull Request
    ### Template 1: Code/Logic Change PRs
 
    ```markdown
-   ## ✅ Approved — Paranoid Mode Analysis Passed
+   ## Approved — Paranoid Mode Analysis Passed
 
    ### Verification Checklist
    **Architecture & Git Hygiene:**
-   - [x] Vanilla JS/CSS constraints verified
-   - [x] Config Integrity maintained
+   - [x] Architecture constraints verified
+   - [x] Config integrity maintained
    - [x] PR is mergeable and free of conflicts
 
-   **WebView UX:**
-   - [x] Touch interactions lag-free
-   - [x] Hover states correctly guarded
+   **Quality & UX:**
+   - [x] Code quality checks passed
+   - [x] UI conventions followed
 
    **Evidence:**
    - Verified changes in `<file>` align with `AGENTS.md`.
 
    ---
-   *Automated analysis by PR Analysis Workflow v2*
+   *Automated analysis by PR Analysis Workflow*
    ```
 
    ### Template 2: UX/Copy/Cosmetic PRs
 
    ```markdown
-   ## ✅ Approved — UX Enhancement Verified
+   ## Approved — UX Enhancement Verified
 
    ### Changes Verified
-   - Visual/Copy changes align with Design guidelines
-   - Informal German ("du") verified.
+   - Visual/copy changes align with design guidelines
 
    ### Logic Unchanged
    - [x] Core behavior preserved
 
    ---
-   *Automated analysis by PR Analysis Workflow v2*
+   *Automated analysis by PR Analysis Workflow*
    ```
 
 ## 6. Re-verification Loop
@@ -213,14 +214,14 @@ If the PR author updates the PR (or user says "Re-check"):
 
 1. Fetch the fresh diff.
 2. Re-run Phase 2 (Deep Code Audit).
-3. Update your `.agent/tmp/` draft from `REQUEST_CHANGES` to `RE-VERIFIED ✅` or `STILL FAILING ❌`.
+3. Update your `.agent/tmp/` draft from `REQUEST_CHANGES` to `RE-VERIFIED` or `STILL FAILING`.
 4. Notify the user of the new status.
 
 ## 7. Final Logistics & Metadata Sync
 
 **CRITICAL RULE:** You are **FORBIDDEN** from merging PRs automatically. Wait for the user to explicitly say "Merge PR #X".
 
-1. **Sync "Completed Date":**
+1. **Sync "Completed Date" (if configured):**
    Immediately after an approval, use the helper script:
 
    ```bash
@@ -231,7 +232,7 @@ If the PR author updates the PR (or user says "Re-check"):
    After the user merges, verify the local branch:
 
    ```bash
-   git pull origin master
+   git pull origin <default-branch>
    ```
 
    (Optional) If applicable, run through the `post-merge-analysis.md` workflow.

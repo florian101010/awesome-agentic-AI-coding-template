@@ -5,78 +5,77 @@ description: Controlled workflow for architecture-level changes with ADR require
 
 # Workflow: Architecture Change
 
-> Für Änderungen mit langfristiger technischer Wirkung.
+> For changes with long-term technical impact.
 
 ---
 
-## Wann ist dieser Workflow Pflicht?
+## When Is This Workflow Required?
 
-- Änderung der WebView-Baseline
-- Änderung zentraler Render-/State-Patterns
-- Änderung der Config-Architektur oder globaler Contracts
-- Einführung neuer technischer Querschnittsmechanismen
+- [FILL: Change to runtime baseline or target environment]
+- Change to core rendering/state patterns
+- Change to config architecture or global contracts
+- Introduction of new cross-cutting technical mechanisms
 
 ---
 
 ## Phase 1 — Architecture Proposal
 
-Dokumentiere vor Code:
+Document before writing code:
 
-- Problem / Kontext
-- Architekturziele
-- Optionen (mind. 2)
+- Problem / context
+- Architecture goals
+- Options (at least 2)
 - Trade-offs
-- Risiko / Rollback
-- Auswirkungen auf bestehende Files/Workflows
+- Risk / rollback plan
+- Impact on existing files/workflows
 
 ---
 
-## Phase 2 — ADR (Pflicht)
+## Phase 2 — ADR (Mandatory)
 
-Erstelle/aktualisiere einen ADR in `docs/docs--recommendation-template/decisions/`:
+Create or update an ADR in `docs/decisions/`:
 
-- Entscheidung
-- Begründung
-- Konsequenzen
-- Migrationshinweise (falls nötig)
+- Decision
+- Rationale
+- Consequences
+- Migration notes (if applicable)
 
-Ohne ADR keine Finalisierung.
-
----
-
-## Phase 3 — Umsetzung
-
-- In kleinen, isolierten Schritten
-- API-/Schema-Kompatibilität prüfen
-- Runtime-Compatibility-Guard berücksichtigen
-- Keine unnötigen Seiteneffekte
+No architecture-level change may be finalized without an ADR entry.
 
 ---
 
-## Phase 4 — Verifikation
+## Phase 3 — Implementation
 
-- Smoke + gezielte Regression
-- WebView-Baseline-Check
-- Betroffene Flows in QA-Checklist prüfen
-
----
-
-## Phase 5 — Doku-Synchronisation
-
-Mindestens aktualisieren:
-
-- `docs/docs--recommendation-template/ARCHITECTURE.md`
-- `docs/docs--recommendation-template/CONFIG-REFERENCE.md` (falls Schema betroffen)
-- `docs/docs--recommendation-template/USER-FLOW.md` (falls Verhalten betroffen)
-- `docs/docs--recommendation-template/ENGINEERING-PLAYBOOK.md` (falls Prozessauswirkung)
-- `docs/docs--recommendation-template/CHANGELOG.md`
+- Work in small, isolated steps
+- Verify API/schema compatibility
+- [FILL: Runtime compatibility guard or environment checks]
+- No unnecessary side effects
 
 ---
 
-## Abschluss
+## Phase 4 — Verification
 
-- [ ] ADR vorhanden
-- [ ] Umsetzung + Regression ok
-- [ ] Doku vollständig synchron
-- [ ] Risiken/Trade-offs klar festgehalten
-- [ ] `.githooks/pre-commit` erfolgreich ausgeführt
+- Smoke test + targeted regression
+- [FILL: Baseline/environment validation]
+- Verify affected flows in QA checklist
+
+---
+
+## Phase 5 — Documentation Sync
+
+At a minimum, update:
+
+- [FILL: `docs/ARCHITECTURE.md`]
+- [FILL: `docs/CONFIG-REFERENCE.md` (if schema affected)]
+- [FILL: Additional project-specific docs affected by architecture changes]
+- `CHANGELOG.md`
+
+---
+
+## Completion
+
+- [ ] ADR present
+- [ ] Implementation + regression OK
+- [ ] Documentation fully synced
+- [ ] Risks/trade-offs clearly recorded
+- [ ] Pre-commit checks passed

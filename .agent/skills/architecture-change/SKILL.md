@@ -1,8 +1,6 @@
 ---
 name: architecture-change
 description: Architecture change workflow with mandatory ADR and controlled rollout. Use when proposing or implementing a structural/architectural change to the codebase.
-allowed-tools: Read, Grep, Glob, Edit, MultiEdit, Write, Bash
-disable-model-invocation: true
 ---
 
 # Architecture Change

@@ -1,8 +1,6 @@
 ---
 name: release-readiness
 description: Pre-release quality gate covering functional checks, baseline validation, and documentation integrity. Use before publishing a new version or tagging a release.
-allowed-tools: Read, Grep, Glob, Edit, MultiEdit, Write, Bash
-disable-model-invocation: true
 ---
 
 # Release Readiness

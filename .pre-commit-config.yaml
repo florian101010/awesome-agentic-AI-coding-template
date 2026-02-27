@@ -37,11 +37,13 @@ repos:
         args: ["--severity=warning"] # Only fail on warnings and errors, not info
 
   # Custom Hook: Prevent Committing Unresolved Template Markers
+  # grep returns 0 (success) when it FINDS a match, so we invert with bash -c '! grep'
+  # to make the hook FAIL when [FILL:] markers are found in non-excluded files.
   - repo: local
     hooks:
       - id: check-template-markers
         name: Check for unresolved [FILL: ...] markers
-        entry: grep -n "\[FILL:"
+        entry: bash -c '! grep -n "\[FILL:" "$@"' --
         language: system
         types: [text]
         exclude: >
@@ -50,6 +52,7 @@ repos:
             docs/CUSTOMIZATION-GUIDE\.md|
             \.agent/rules/coding-standards\.md|
             \.agents/skills/.*|
+            \.agent/skills/.*|
             \.claude/.*|
             \.github/copilot-instructions\.md|
             CHANGELOG\.md|

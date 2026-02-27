@@ -1,0 +1,54 @@
+/**
+ * .cursorrules
+ *
+ * Cursor AI configuration file. Points Cursor to the shared AGENTS.md rules
+ * and project-specific coding standards. Cursor reads this file automatically
+ * when opening the workspace.
+ *
+ * For the full rule set, see AGENTS.md (root).
+ */
+
+You are working on a project that uses AI coding agents across multiple tools.
+Read and follow AGENTS.md at the repository root — it contains the authoritative
+coding rules, file structure, and constraints for this project.
+
+## Key Rules
+
+- Follow all rules in `AGENTS.md` — they apply to every AI agent including Cursor.
+- Follow coding standards in `.agent/rules/coding-standards.md`.
+- Use commit format: `type(optional-scope): description`.
+- Minimal changes — only touch files necessary for the task.
+- No unsolicited features — don't add functionality the user didn't ask for.
+
+## Documentation Hygiene
+
+- Use `| --- | --- |` separator style for all Markdown tables.
+- Every fenced code block must include a language specifier.
+- Single H1 per file, logical heading increments.
+
+## After Every Change
+
+1. Run `[FILL: your test command, e.g. npm test]`.
+2. Commit with format `type(scope): description`.
+3. Ensure pre-commit hooks pass.
+
+## Available Workflows
+
+See `.agent/workflows/` for reusable procedures:
+- `feature-delivery.md` — End-to-end feature workflow
+- `hotfix.md` — Emergency hotfix procedure
+- `doc-audit.md` — Documentation drift audit
+- `pr-analysis.md` — PR quality review
+- `release-readiness.md` — Pre-release quality gate
+- `architecture-change.md` — ADR-gated architecture changes
+
+## Key Files
+
+| File | Purpose |
+| --- | --- |
+| `AGENTS.md` | Authoritative agent rules (all tools) |
+| `CLAUDE.md` | Claude Code specific rules |
+| `.github/copilot-instructions.md` | GitHub Copilot rules |
+| `.agent/rules/` | Gemini/Antigravity/Jules always-on rules |
+| `.agent/workflows/` | Reusable workflow procedures |
+| `docs/ARCHITECTURE.md` | Template architecture and design decisions |

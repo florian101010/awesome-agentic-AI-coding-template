@@ -130,8 +130,8 @@ Click **"Use this template"** at the top right of this repository, or click the 
 ### Option B — Clone and Copy
 
 ```bash
-git clone https://github.com/yourusername/agentic-coding-template.git
-cp -r agentic-coding-template/. your-project/
+git clone https://github.com/florian101010/awesome-agentic-AI-coding-template.git
+cp -r awesome-agentic-AI-coding-template/. your-project/
 rm -rf your-project/.git
 ```
 
@@ -154,6 +154,8 @@ grep -rn "\[FILL:" . --include="*.md" | grep -v README
 | `.agent/rules/coding-standards.md` | Architecture constraints, stack-specific rules |
 
 **Step 3 — Remove what you don't need.** Sections like "Immutable Contract" or "Layout Constraints" are designed to be deleted for projects that don't need them.
+
+> **Note:** The `[FILL: e.g. "npm test"]` placeholders in agent files refer to *your* project's test commands. This template ships no runtime code — fill in the commands that match your stack (e.g. `npm test`, `pytest`, `cargo test`).
 
 **Step 4 — Activate Git hooks** (optional but recommended):
 
@@ -347,3 +349,5 @@ This template builds on top of the work of the teams and individuals behind thes
 **Stop configuring. Start building.**
 
 *Clone once. Use everywhere.*
+
+![Start building](https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNDJicXNhcXA0NmlrdzFid3p4M3A0NG5sbW5wbW03ZGF1ZjZneXc3YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/JqmupuTVZYaQX5s094/giphy.gif)

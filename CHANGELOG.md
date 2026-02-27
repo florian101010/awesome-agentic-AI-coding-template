@@ -86,4 +86,4 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
-[1.0.0]: https://github.com/yourusername/agentic-coding-template/releases/tag/v1.0.0
+[1.0.0]: https://github.com/florian101010/awesome-agentic-AI-coding-template/releases/tag/v1.0.0

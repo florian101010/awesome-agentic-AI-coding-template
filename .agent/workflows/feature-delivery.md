@@ -5,88 +5,83 @@ description: End-to-end workflow for delivering features with planning, implemen
 
 # Workflow: Feature Delivery
 
-> Standardprozess für Features im -Template.
-> Ziel: schnell liefern, ohne Qualitäts- oder Dokumentationsdrift.
+> Standard process for feature delivery.
+> Goal: ship quickly without quality or documentation drift.
 
 ---
 
 ## Phase 1 — Feature Brief
 
-Erfasse vor Implementierung:
+Capture before implementation:
 
-- Problem / Ziel
-- Nicht-Ziele (Scope-Grenze)
-- Betroffene Steps (Interests / Brands / Confirm / Success)
-- Betroffene Dateien
-- Risiken (UX, Performance, WebView-Kompatibilität)
-- Abnahmekriterien (testbar)
-
----
-
-## Phase 2 — Design & Datenmodell
-
-1. Prüfe zuerst `config/*.js` als Single Source of Truth.
-2. Definiere neue Felder in Config statt Hardcoding im HTML.
-3. Dokumentiere Schemaänderungen direkt im Config-JSDoc.
-4. Prüfe Auswirkungen auf bestehende Rendering-Helfer.
+- Problem / goal
+- Non-goals (scope boundary)
+- Affected components / steps
+- Affected files
+- Risks (UX, performance, compatibility)
+- Acceptance criteria (testable)
 
 ---
 
-## Phase 3 — Implementierung (in Inkrementen)
+## Phase 2 — Design & Data Model
 
-Empfohlene Reihenfolge:
+1. Check config files first as Single Source of Truth.
+2. Define new fields in config instead of hardcoding in templates.
+3. Document schema changes directly in the config file's JSDoc header.
+4. Assess impact on existing rendering helpers.
 
-1. Datenzugriff / State-Update
+---
+
+## Phase 3 — Implementation (in Increments)
+
+Recommended order:
+
+1. Data access / state update
 2. Rendering
-3. Interaktionslogik
-4. Fallback-/Fehlerverhalten
-5. Feinschliff (A11y, UX-Text, Touch-Verhalten)
+3. Interaction logic
+4. Fallback / error handling
+5. Polish (a11y, UX copy, [FILL: environment-specific behavior])
 
-Regeln:
+Rules:
 
-- Keine Frameworks / keine Dependencies
-- Relative Pfade
-- Touch-first (`touch-action`, `-webkit-tap-highlight-color`, Hover-Guard)
-- Modern ES6+ innerhalb Baseline (iOS 16+, WebView 110+)
-- Runtime-Compatibility-Guard beibehalten
+- [FILL: Project-specific implementation rules — e.g. "No frameworks / no dependencies"]
+- Relative paths only
+- [FILL: Platform-specific rules — e.g. "Touch-first: touch-action, -webkit-tap-highlight-color, hover-guard"]
+- [FILL: Baseline requirements — e.g. "Modern ES6+ within baseline (iOS 16+, WebView 110+)"]
 
 ---
 
 ## Phase 4 — QA
 
-Mindestens ausführen:
+At minimum, execute:
 
-- Relevante Punkte in `docs/docs--recommendation-template/QA-CHECKLIST.md`
-- Smoke im Mockup: Inbox → Template → Back
-- Avatar-Fallback
-- Auswahl-/Navigation-Flow
-- Keine JS-Fehler in der Konsole
-
----
-
-## Phase 5 — Dokumentationssync (Pflicht)
-
-Aktualisiere je nach Änderung:
-
-- `docs/docs--recommendation-template/README.md`
-- `docs/docs--recommendation-template/ARCHITECTURE.md`
-- `docs/docs--recommendation-template/USER-FLOW.md`
-- `docs/docs--recommendation-template/CONFIG-REFERENCE.md`
-- `docs/docs--recommendation-template/STYLING-GUIDE.md`
-- `docs/docs--recommendation-template/decisions/` (neuen ADR anlegen, falls ADR-relevant)
-- `docs/docs--recommendation-template/ROADMAP.md` (falls Planstand geändert)
-- `docs/docs--recommendation-template/CHANGELOG.md`
-
-Nutze zusätzlich den Audit-Workflow: `.agent/workflows/doc-audit.md`
+- Relevant items from your project's QA checklist
+- Smoke test for affected user flows
+- Fallback behavior verification
+- No errors in the console
 
 ---
 
-## Phase 6 — Abschlusskriterien (DoD)
+## Phase 5 — Documentation Sync (Mandatory)
 
-- [ ] Feature erfüllt Akzeptanzkriterien
-- [ ] Keine relevanten Fehler
-- [ ] QA-Smoke erfolgreich
-- [ ] Dokumentation synchron
-- [ ] Changelog aktualisiert
-- [ ] Keine Regelverstöße (Pfad, Touch, Hover, Sprache, Baseline)
-- [ ] `.githooks/pre-commit` erfolgreich ausgeführt
+Update as needed:
+
+- [FILL: `docs/README.md`]
+- [FILL: `docs/ARCHITECTURE.md`]
+- [FILL: Additional doc paths relevant to your project]
+- `docs/decisions/` (create new ADR if architecturally relevant)
+- `CHANGELOG.md`
+
+Also run the audit workflow: `.agent/workflows/doc-audit.md`
+
+---
+
+## Phase 6 — Definition of Done (DoD)
+
+- [ ] Feature meets acceptance criteria
+- [ ] No relevant errors
+- [ ] QA smoke test passed
+- [ ] Documentation in sync
+- [ ] Changelog updated
+- [ ] No rule violations (paths, [FILL: project-specific rules])
+- [ ] Pre-commit checks passed

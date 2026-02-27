@@ -1,6 +1,13 @@
 #!/bin/bash
 # protect-files.sh
 # Blocks Claude Code from modifying critical repository files without user consent.
+#
+# NOTE: During initial template setup, this hook blocks modifications to .agent/,
+# .claude/, .github/, and AGENTS.md — the very files you need to customize.
+# To complete setup, either:
+#   1. Temporarily rename/disable this hook while filling [FILL:] markers, or
+#   2. Use --allowedTools flag to bypass for specific files.
+# Re-enable after setup is complete.
 
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')

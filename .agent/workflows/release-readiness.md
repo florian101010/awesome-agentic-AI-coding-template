@@ -5,56 +5,53 @@ description: Pre-release quality gate workflow for the project
 
 # Workflow: Release Readiness
 
-> Finaler Qualitätscheck vor Release/Übergabe.
+> Final quality check before release or handoff.
 
 ---
 
 ## Phase 1 — Scope Freeze
 
-- Definiere exakt, welche Änderungen in den Release gehen.
-- Offene Punkte als bewusst „nicht im Scope" markieren.
+- Define exactly which changes are included in the release.
+- Mark open items as explicitly "out of scope."
 
 ---
 
-## Phase 2 — Funktionale Abnahme
+## Phase 2 — Functional Acceptance
 
-- Führe die vollständige `docs/docs--recommendation-template/QA-CHECKLIST.md` aus.
-- Dokumentiere Testergebnis je Abschnitt.
-- Stelle sicher: keine kritischen Konsolenfehler.
-
----
-
-## Phase 3 — WebView-Qualität
-
-- Baseline validiert: iOS 16+, [FILL: target environment] 110+
-- Runtime-Compatibility-Guard validiert
-- Touch-Verhalten und Hover-Guards validiert
+- Execute the project's full QA checklist.
+- Document test results per section.
+- Ensure no critical console errors.
 
 ---
 
-## Phase 4 — Dokumentationsgate
+## Phase 3 — Environment Validation
 
-Pflichtcheck:
-
-- `docs/docs--recommendation-template/README.md`
-- `docs/docs--recommendation-template/ARCHITECTURE.md`
-- `docs/docs--recommendation-template/USER-FLOW.md`
-- `docs/docs--recommendation-template/CONFIG-REFERENCE.md`
-- `docs/docs--recommendation-template/STYLING-GUIDE.md`
-- `docs/docs--recommendation-template/decisions/` (ADR-Dateien, falls relevant)
-- `docs/docs--recommendation-template/ROADMAP.md` (falls relevant)
-- `docs/docs--recommendation-template/CHANGELOG.md`
-
-Nutze `.agent/workflows/doc-audit.md` als finalen Drift-Check.
+- [FILL: Target environment] baseline validated
+- [FILL: Compatibility guard or runtime checks] validated
+- [FILL: Platform-specific behavior — e.g. "Touch behavior and hover guards validated"]
 
 ---
 
-## Phase 5 — Go/No-Go Entscheidung
+## Phase 4 — Documentation Gate
 
-Go nur wenn:
+Mandatory checks:
 
-- [ ] QA erfolgreich
-- [ ] Doku synchron
-- [ ] Keine kritischen offenen Punkte
-- [ ] Changelog vollständig
-- [ ] `.githooks/pre-commit` erfolgreich ausgeführt
+- [FILL: `docs/README.md`]
+- [FILL: `docs/ARCHITECTURE.md`]
+- [FILL: Additional project-specific docs to verify]
+- `docs/decisions/` (ADR files, if relevant)
+- `CHANGELOG.md`
+
+Run `.agent/workflows/doc-audit.md` as the final drift check.
+
+---
+
+## Phase 5 — Go/No-Go Decision
+
+Go only when:
+
+- [ ] QA passed
+- [ ] Documentation in sync
+- [ ] No critical open issues
+- [ ] Changelog complete
+- [ ] Pre-commit checks passed
