@@ -27,8 +27,8 @@ def fail(msg: str) -> None:
 
 def main() -> int:
     if not CONTEXT.exists():
-      print("[context-sync] SKIP: project-context.json not found (template mode)")
-      return 0
+        print("[context-sync] SKIP: project-context.json not found (template mode)")
+        return 0
 
     data = json.loads(CONTEXT.read_text(encoding="utf-8"))
     required = {
@@ -45,6 +45,10 @@ def main() -> int:
 
     status = 0
     for target in TARGETS:
+        if not target.exists():
+            fail(f"required instruction file missing: {target.relative_to(ROOT)}")
+            status = 1
+            continue
         text = target.read_text(encoding="utf-8")
         for label, value in required.items():
             if value not in text:

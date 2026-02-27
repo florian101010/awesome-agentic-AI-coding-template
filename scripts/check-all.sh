@@ -9,7 +9,9 @@ python3 scripts/check-agent-context-sync.py
 
 echo "[check-all] Validating shell scripts with shellcheck when available"
 if command -v shellcheck >/dev/null 2>&1; then
-  find scripts .agent/scripts -type f -name '*.sh' -print0 | xargs -0 -r shellcheck -S warning
+  paths=(scripts)
+  [[ -d .agent/scripts ]] && paths+=(.agent/scripts)
+  find "${paths[@]}" -type f -name '*.sh' -print0 | xargs -0 -r shellcheck -S warning
 else
   echo "[check-all] WARNING: shellcheck not installed; skipping"
 fi
