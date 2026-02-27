@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -13,7 +13,7 @@ repos:
 
   # Secret Scanning
   - repo: https://github.com/gitleaks/gitleaks
-    rev: v8.18.2
+    rev: v8.30.0
     hooks:
       - id: gitleaks
         description: Detect hardcoded secrets using Gitleaks
@@ -21,7 +21,7 @@ repos:
 
   # Markdown Formatting & Validation
   - repo: https://github.com/DavidAnson/markdownlint-cli2
-    rev: v0.13.0
+    rev: v0.21.0
     hooks:
       - id: markdownlint-cli2
         description: Check markdown files for style guide violations
@@ -30,7 +30,7 @@ repos:
 
   # Shell Script Linting
   - repo: https://github.com/koalaman/shellcheck-precommit
-    rev: v0.10.0
+    rev: v0.11.0
     hooks:
       - id: shellcheck
         description: Static analysis tool for shell scripts
@@ -49,10 +49,15 @@ repos:
         exclude: >
           (?x)^(
             README\.md|
+            AGENTS\.md|
+            CLAUDE\.md|
+            GEMINI\.md|
             docs/CUSTOMIZATION-GUIDE\.md|
             \.agent/rules/coding-standards\.md|
+            \.agent/workflows/.*|
             \.agents/skills/.*|
             \.agent/skills/.*|
+            \.kilocode/rules/.*|
             \.claude/.*|
             \.github/copilot-instructions\.md|
             CHANGELOG\.md|

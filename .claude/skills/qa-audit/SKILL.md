@@ -1,7 +1,6 @@
 ---
 name: qa-audit
 description: "Use when performing a quality audit, security review, or robustness check. Covers XSS/innerHTML scanning, rule compliance verification, race condition analysis, config schema validation, and documentation drift detection. Produces a severity-classified report (Critical/High/Medium/Low)."
-allowed-tools: Read, Grep, Glob, Bash
 disable-model-invocation: true
 ---
 

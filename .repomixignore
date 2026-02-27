@@ -36,8 +36,8 @@ package-lock.json
 yarn.lock
 pnpm-lock.yaml
 
-# --- Assets & Binaries (Bilder, Videos, Fonts) ---
-# Bilder
+# --- Assets & Binaries (Images, Videos, Fonts) ---
+# Images
 *.png
 *.jpg
 *.jpeg
@@ -46,8 +46,8 @@ pnpm-lock.yaml
 *.ico
 *.bmp
 *.tiff
-# SVGs können Code sein, aber oft auch nur Assets. 
-# Wenn SVGs als Komponenten genutzt werden, diese Zeile auskommentieren.
+# SVGs can be code, but are often just assets.
+# If SVGs are used as components, comment out this line.
 *.svg
 
 # Fonts
@@ -65,7 +65,7 @@ fonts/
 *.mp3
 *.wav
 
-# Dokumente/Archive
+# Documents/Archives
 *.pdf
 *.zip
 *.tar.gz

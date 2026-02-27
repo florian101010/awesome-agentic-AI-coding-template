@@ -1,5 +1,7 @@
 # Coding Standards
 
+<!-- SYNC: Keep in sync with .agent/rules/coding-standards.md and .kilocode/rules/coding-standards.md -->
+
 Project-wide conventions not covered by path-scoped rules.
 
 <!-- SETUP: Add cross-references to path-scoped rule files once created, e.g.:

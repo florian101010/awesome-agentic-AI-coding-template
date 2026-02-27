@@ -50,6 +50,8 @@ This template provides optimized configurations for all major AI coding tools:
 | **Google Jules** | `AGENTS.md` (read natively), `README.md` (env setup fallback) | Autonomous async task execution; Jules reads `AGENTS.md` automatically on every task |
 | **Google Gemini / Antigravity** | `GEMINI.md`, `.agent/rules/`, `.agent/workflows/`, `.agent/skills/` | Always-on rules, reusable workflow definitions, skill library |
 
+> **Other tools** — Windsurf, Aider, Amazon Q Developer, and Devin can leverage `AGENTS.md` (widely supported) plus `.agent/` rules and workflows. See [docs/CUSTOMIZATION-GUIDE.md](docs/CUSTOMIZATION-GUIDE.md) for adaptation tips.
+
 One template, every major agent, zero duplication.
 
 ---
@@ -198,8 +200,8 @@ Every skill is ready to invoke. Universal skills need no customization; project-
 | **Find Skills** | `/find-skills` | Discover all available skills |
 | **Using Superpowers** | `/using-superpowers` | Skill discovery on session start |
 
-*(Example: Running the `/qa-audit` skill in your terminal or PR)*
-![QA Audit Skill in Action](docs/assets/qa-audit-demo.gif)
+<!-- TODO: Add a demo recording at docs/assets/qa-audit-demo.gif and uncomment the image below -->
+<!-- ![QA Audit Skill in Action](docs/assets/qa-audit-demo.gif) -->
 
 ---
 

@@ -1,7 +1,6 @@
 ---
 name: hotfix
 description: Fast but controlled hotfix workflow for urgent production incidents. Use when a critical bug needs an immediate targeted fix.
-allowed-tools: Read, Grep, Glob, Edit, MultiEdit, Write, Bash
 disable-model-invocation: true
 ---
 

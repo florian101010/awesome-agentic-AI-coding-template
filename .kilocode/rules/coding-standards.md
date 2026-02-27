@@ -4,6 +4,7 @@ trigger: always
 
 # Coding Standards
 
+<!-- SYNC: Keep in sync with .claude/rules/coding-standards.md and .agent/rules/coding-standards.md -->
 <!-- SETUP: Fill in all [FILL: ...] placeholders to match your project. Remove sections that don't apply. -->
 
 ## Architecture

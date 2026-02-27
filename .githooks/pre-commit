@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+# .githooks/pre-commit — Repo-local pre-commit hook
+#
+# Delegates to the `pre-commit` framework if installed, otherwise runs
+# basic sanity checks so the hook never silently does nothing.
+#
+# Setup: git config core.hooksPath .githooks
+
+set -euo pipefail
+
+# --- Option 1: Delegate to pre-commit framework (preferred) ---
+if command -v pre-commit &>/dev/null; then
+  exec pre-commit run --hook-stage pre-commit
+fi
+
+# --- Option 2: Fallback — basic checks if pre-commit is not installed ---
+echo "[pre-commit] pre-commit framework not found — running basic checks"
+
+# Check for [FILL:] markers in staged files (warn only)
+if git diff --cached --name-only | xargs grep -l '\[FILL:' 2>/dev/null; then
+  echo "[pre-commit] WARNING: Staged files contain [FILL:] markers"
+fi
+
+# Check for trailing whitespace
+if ! git diff --cached --check 2>/dev/null; then
+  echo "[pre-commit] ERROR: Trailing whitespace or merge conflict markers found"
+  exit 1
+fi
+
+echo "[pre-commit] Basic checks passed"

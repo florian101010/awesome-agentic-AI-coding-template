@@ -1,7 +1,6 @@
 ---
 name: feature-delivery
 description: End-to-end feature workflow with planning, implementation, QA, and documentation sync. Use when delivering a new feature or larger enhancement.
-allowed-tools: Read, Grep, Glob, Edit, MultiEdit, Write, Bash
 disable-model-invocation: true
 ---
 

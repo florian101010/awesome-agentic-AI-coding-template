@@ -5,13 +5,32 @@ description: "Use when performing a quality audit, security review, or robustnes
 
 # QA-Audit
 
+<!-- SETUP: Fill in [FILL: ...] placeholders to match your project. -->
+
 > Systematic full-scope quality audit for `[FILL: main-source-file]` and its config ecosystem.
 
 ## Overview
 
 This skill performs a comprehensive code quality audit covering security, robustness, rule compliance, and documentation drift. It produces a structured report with findings classified by severity.
 
-The audit was designed based on real findings from production audits — it catches XSS vectors, race conditions, missing error guards, SVG injection points, and documentation drift that automated tools miss.
+## Scope Options
+
+Ask user for scope before starting:
+
+| Scope | Coverage |
+| --- | --- |
+| **Source-only** | Main source file |
+| **Config-included** | Source + all config files |
+| **Full Scope Paranoid** | Source + Config + Agent Rules + Docs (recommended, default) |
+
+**Key requirements:**
+1. Read ALL source lines — no skipping
+2. Check ALL rule files listed below
+3. Report findings with exact line numbers and the specific rule violated
+4. Save report as `docs/QA-AUDIT-{YYYY-MM-DD}.md`
+5. **No fixes until user approves** — audit is read-only first
+
+---
 
 ## When to Use
 
@@ -26,23 +45,15 @@ The audit was designed based on real findings from production audits — it catc
 
 | Phase | Focus | Output |
 | --- | --- | --- |
-| 0 | **Baseline** — Run `npm test`, `config-stats`, avatar verification | Green baseline confirmed |
-| 1 | **Template Full Read** — Every line of HTML, CSS, JS | Zone-by-zone understanding |
-| 2 | **Rule Compliance** — Compare code against ALL 8+ rule files | Rule violation findings |
+| 0 | **Baseline** — Run `npm test` and config/asset verification | Green baseline confirmed |
+| 1 | **Source Full Read** — Every line of the main source file | Zone-by-zone understanding |
+| 2 | **Rule Compliance** — Compare code against ALL rule files | Rule violation findings |
 | 3 | **Config Verification** — Schema conformity, cross-references | Schema/data integrity findings |
-| 4 | **Security Scan** — innerHTML/XSS, SVG injection, forbidden APIs | Security findings |
+| 4 | **Security Scan** — innerHTML/XSS, forbidden APIs | Security findings |
 | 5 | **Edge-Case & Robustness** — Race conditions, error propagation, guards | Robustness findings |
 | 6 | **Documentation Drift** — Code IST vs. documented SOLL values | Drift findings |
 | 7 | **Classification & Report** — Severity assignment, structured audit document | `QA-AUDIT-{date}.md` |
 | 8 | **Fix Planning** — Risk per finding, fix order, verification plan | Fix roadmap |
-
-## Scope Options
-
-| Scope | Coverage |
-| --- | --- |
-| **Template-only** | `[FILL: main-source-file]` (HTML + CSS + JS) |
-| **Config-included** | Template + all `config/*.js` files |
-| **Full Scope Paranoid** | Template + Config + Agent Rules + Docs (recommended) |
 
 ## Severity Definitions
 
@@ -57,54 +68,46 @@ The audit was designed based on real findings from production audits — it catc
 
 ### Security
 
-- All `innerHTML` with config-/runtime-derived text uses `your-escape-fn()`
-- `buildFallbackDataUri()` sanitizes colors via `sanitizeColor()`
+- All `innerHTML` with config-/runtime-derived text uses a safe escaping function
 - No `eval()`, `Function()`, `document.write()`, `postMessage`, `localStorage`
+- [FILL: Project-specific security check]
 
 ### Rule Compliance
 
-- `touch-action: manipulation` on every interactive element
-- `:hover` only inside `@media (hover: hover) and (pointer: fine)`
-- `-webkit-tap-highlight-color: transparent` on all tappable elements
-- All brand avatars via `your-asset-helper()` — no manual `<img>`
-- All config uses IIFE + `Object.freeze`
-- Relative paths only — no leading `/` or `./`
+- [FILL: Rule 1 — e.g. "touch-action: manipulation on every interactive element"]
+- [FILL: Rule 2 — e.g. ":hover only inside @media (hover: hover) and (pointer: fine)"]
+- [FILL: Rule 3 — e.g. "All config uses IIFE + Object.freeze"]
+- Relative paths only — no leading `/` or `./` (if applicable)
 
 ### Robustness
 
-- Navigation has transition lock (prevents rapid double-tap)
-- Confirm-item removal has isRemoving guard
-- `handleSubscribe()` has try-catch around Supabase block
+- [FILL: Race condition check 1]
+- [FILL: Error propagation check]
 - Compatibility guard covers all required APIs
 
 ### Documentation Drift
 
-- `.app-container` padding value matches ALL rule files
-- `--app-chrome-height` value matches ALL rule files
-- Footer padding-bottom formula is consistent
-- Binding variant IDs are unchanged
+- [FILL: Key value that must match across all rule files]
+- Immutable contract IDs are unchanged
 
 ## Rule Files to Check (ALL of these)
 
 | File | Key sections |
 | --- | --- |
-| `AGENTS.md` | CSS Rules, JS Rules, SVG/Avatar Rules, Layout Constraints |
+| `AGENTS.md` | Coding Rules, Immutable Contract |
 | `CLAUDE.md` | Critical Constraints, Do NOT |
 | `.github/copilot-instructions.md` | Always Do, Never Do |
-| `.claude/rules/css-touch.md` | Touch and hover rules |
-| `.claude/rules/template-rendering.md` | Padding, footer, avatar rendering |
-| `.claude/rules/config-patterns.md` | IIFE, Object.freeze, SSOT |
-| `.agent/rules/coding-standards.md` | CSS/JS rules |
-| `.agent/rules/-template.md` | File responsibilities, config schema |
+| `.agent/rules/coding-standards.md` | Rules, conventions |
+| [FILL: additional rule files] | [FILL: scope] |
 
 ## Report Output
 
-Save to: `docs/docs--recommendation-template/QA-AUDIT-{YYYY-MM-DD}.md`
+Save to: `docs/QA-AUDIT-{YYYY-MM-DD}.md`
 
-Update `QA-CHECKLIST.md` if new check categories are discovered.
+Update `docs/QA-CHECKLIST.md` if new check categories are discovered.
 
 ## Full Procedure
 
-→ See `.agent/workflows/qa-audit.md` for the complete step-by-step guide including Phase details, checklists, report template, and fix planning methodology.
+→ See `.agent/workflows/qa-audit.md` for the complete step-by-step guide.
 
 → For Claude Code users: use the `/qa-audit` slash command.
