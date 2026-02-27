@@ -7,6 +7,22 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **`setup-repo` skill** — AI-powered repo setup available across all agent directories. Analyzes the codebase and auto-generates filled versions of all 8 agent instruction files (`CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `coding-standards.md` ×3, `qa-reviewer.md`), replacing every `[FILL:]` marker with content derived from the actual project.
+  - `.claude/skills/setup-repo/SKILL.md` — Claude Code
+  - `.agents/skills/setup-repo/SKILL.md` — Universal (Copilot, Cursor, Codex, Kilo Code)
+  - `.agent/skills/setup-repo/SKILL.md` — Antigravity / Gemini / Jules
+  - `.github/prompts/setup-repo.prompt.md` — GitHub Copilot prompt command
+
+### Removed
+
+- **`setup.sh`** — superseded by the `/setup-repo` skill, which fills all instruction files automatically using AI codebase analysis (vs. ~15 markers via interactive prompts)
+
+---
+
 ## [1.0.2] — 2026-02-27
 
 ### Fixed (v1.0.2)

@@ -79,6 +79,7 @@ Agent Skills (via `/skill-name` in chat) and Prompt Files (via `/command`) are a
 
 | Task | Invoke | Details |
 | --- | --- | --- |
+| Setup repo (AI-powered) | `/setup-repo` skill | `.agents/skills/setup-repo/SKILL.md` |
 | QA audit | `/qa-audit` skill | `.agents/skills/qa-audit/SKILL.md` |
 | Documentation audit | `/doc-audit` skill | `.agents/skills/doc-audit/SKILL.md` |
 | Feature delivery | `/feature-delivery` skill | `.agents/skills/feature-delivery/SKILL.md` |

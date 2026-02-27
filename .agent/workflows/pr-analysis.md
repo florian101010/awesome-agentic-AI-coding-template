@@ -171,7 +171,7 @@ This workflow defines the standard operating procedure for auditing Pull Request
 
    **Use these specific templates:**
 
-   ### Template 1: Code/Logic Change PRs
+   **Template 1: Code/Logic Change PRs**
 
    ```markdown
    ## Approved — Paranoid Mode Analysis Passed
@@ -193,7 +193,7 @@ This workflow defines the standard operating procedure for auditing Pull Request
    *Automated analysis by PR Analysis Workflow*
    ```
 
-   ### Template 2: UX/Copy/Cosmetic PRs
+   **Template 2: UX/Copy/Cosmetic PRs**
 
    ```markdown
    ## Approved — UX Enhancement Verified

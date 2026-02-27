@@ -137,15 +137,23 @@ cp -r awesome-agentic-AI-coding-template/. your-project/
 rm -rf your-project/.git
 ```
 
-### Configure (2 minutes with setup script)
+### Configure
 
-Run the interactive setup script to populate the most common `[FILL:]` markers automatically:
+Let the agent analyze your codebase and generate filled-in versions of every instruction file automatically.
 
-```bash
-bash setup.sh
+**In Claude Code** — invoke the skill directly:
+
+```
+/setup-repo
 ```
 
-The script prompts for your project name, description, tech stack, test/lint/build commands, constraints, and prohibitions — then writes them into `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`. It also offers to activate git hooks at the end.
+**In any other agent** — bundle the repo first, then paste the prompt:
+
+```bash
+npx repomix   # produces repomix-output.xml
+```
+
+Then open your agent (Copilot `/setup-repo`, Cursor, Gemini, etc.), attach the repomix output, and invoke the skill. The agent reads the codebase, infers constraints, and outputs ready-to-paste content for all 8 instruction files.
 
 ### Configure (manual — 5 minutes)
 
@@ -195,6 +203,7 @@ Every skill is ready to invoke. Universal skills need no customization; project-
 
 | Skill | Invoke | What it does |
 | --- | --- | --- |
+| **Setup Repo** | `/setup-repo` | AI-powered setup — analyze codebase and auto-fill all agent instruction files |
 | **Brainstorming** | `/brainstorming` | Structured ideation — explores user intent and constraints before building |
 | **Systematic Debugging** | `/systematic-debugging` | Root-cause analysis — never guess, always trace |
 | **QA Audit** | `/qa-audit` | 9-phase security + robustness audit: XSS, rule compliance, race conditions |
