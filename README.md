@@ -137,6 +137,24 @@ cp -r awesome-agentic-AI-coding-template/. your-project/
 rm -rf your-project/.git
 ```
 
+### Configure (AI-powered — fastest)
+
+Let the agent analyze your codebase and generate filled-in versions of every instruction file automatically.
+
+**In Claude Code** — invoke the skill directly:
+
+```
+/setup-repo
+```
+
+**In any other agent** — bundle the repo first, then paste the prompt:
+
+```bash
+npx repomix   # produces repomix-output.xml
+```
+
+Then open your agent (Copilot `/setup-repo`, Cursor, Gemini, etc.), attach the repomix output, and invoke the skill. The agent reads the codebase, infers constraints, and outputs ready-to-paste content for all 8 instruction files.
+
 ### Configure (2 minutes with setup script)
 
 Run the interactive setup script to populate the most common `[FILL:]` markers automatically:
@@ -195,6 +213,7 @@ Every skill is ready to invoke. Universal skills need no customization; project-
 
 | Skill | Invoke | What it does |
 | --- | --- | --- |
+| **Setup Repo** | `/setup-repo` | AI-powered setup — analyze codebase and auto-fill all agent instruction files |
 | **Brainstorming** | `/brainstorming` | Structured ideation — explores user intent and constraints before building |
 | **Systematic Debugging** | `/systematic-debugging` | Root-cause analysis — never guess, always trace |
 | **QA Audit** | `/qa-audit` | 9-phase security + robustness audit: XSS, rule compliance, race conditions |

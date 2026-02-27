@@ -92,6 +92,31 @@ done
 
 ---
 
+## Setup Skill
+
+---
+
+### `setup-repo` `[this template]`
+
+**Run immediately after cloning** — analyze the codebase and auto-generate filled versions of every agent instruction file.
+
+Reads package.json, config files, git hooks, CI config, and source structure to infer project name, tech stack, constraints, prohibitions, test commands, and file structure. Outputs ready-to-paste content for all 8 instruction files, replacing every `[FILL:]` marker.
+
+**Works without any manual input** — the agent derives everything from the codebase itself.
+
+**For non-Claude Code agents:** run `npx repomix` first to bundle the repo, then attach the output.
+
+| | |
+| --- | --- |
+| **Invoke** | `/setup-repo` |
+| **When** | Immediately after cloning; when `setup.sh` fills aren't deep enough |
+| **When NOT** | Repo already fully set up (no `[FILL:]` markers remain) |
+| **Needs `[FILL:]`** | No |
+| **Agents** | All |
+| **Copilot** | `/setup-repo` prompt in `.github/prompts/setup-repo.prompt.md` |
+
+---
+
 ## Universal Skills
 
 These skills need no project customization. Use them as-is.
