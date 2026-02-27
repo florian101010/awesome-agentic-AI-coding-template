@@ -1,13 +1,15 @@
 #!/bin/bash
 # protect-files.sh
-# Blocks Claude Code from modifying critical repository files without user consent.
+# Blocks Claude Code from modifying files that are dangerous to edit autonomously.
 #
-# NOTE: During initial template setup, this hook blocks modifications to .agent/,
-# .claude/, .github/, and AGENTS.md — the very files you need to customize.
-# To complete setup, either:
-#   1. Temporarily rename/disable this hook while filling [FILL:] markers, or
-#   2. Use --allowedTools flag to bypass for specific files.
-# Re-enable after setup is complete.
+# Protected:
+#   .env            — secrets must never be written by an agent
+#   package-lock.json — lockfile integrity; use npm install to update
+#   .git/           — git internals should never be touched directly
+#
+# NOT protected (intentionally editable):
+#   CLAUDE.md, AGENTS.md, GEMINI.md, .claude/, .agent/, .github/
+#   These are the primary customization targets for this template.
 
 INPUT=$(cat)
 FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // empty')
@@ -16,11 +18,6 @@ PROTECTED_PATTERNS=(
   ".env"
   "package-lock.json"
   ".git/"
-  ".agent/"
-  ".claude/"
-  ".github/"
-  "CLAUDE.md"
-  "AGENTS.md"
 )
 
 for pattern in "${PROTECTED_PATTERNS[@]}"; do
