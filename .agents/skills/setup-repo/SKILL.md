@@ -7,14 +7,14 @@ description: "Analyze this repository and auto-generate filled versions of all a
 
 ## Overview
 
-This skill reads the codebase, infers project-specific values from code, config files, and structure, then generates complete filled-in versions of every `[FILL:]` instruction file. It replaces the need to fill markers manually or run `setup.sh` alone.
+This skill reads the codebase, infers project-specific values from code, config files, and structure, then generates complete filled-in versions of every `[FILL:]` instruction file. It replaces the need to fill markers manually.
 
 **Announce at start:** "I'm using the setup-repo skill to generate your agent instruction files."
 
 ## When to Use
 
 - Immediately after cloning this template into a new project
-- When `setup.sh` has been run but deeper fills remain (file structure, coding standards, qa-reviewer checklist)
+- When basic fills were done manually but deeper fills remain (file structure, coding standards, qa-reviewer checklist)
 - When onboarding an existing codebase onto this template
 
 ## When NOT to Use

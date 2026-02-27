@@ -109,7 +109,7 @@ Reads package.json, config files, git hooks, CI config, and source structure to 
 | | |
 | --- | --- |
 | **Invoke** | `/setup-repo` |
-| **When** | Immediately after cloning; when `setup.sh` fills aren't deep enough |
+| **When** | Immediately after cloning; when manual fills aren't deep enough |
 | **When NOT** | Repo already fully set up (no `[FILL:]` markers remain) |
 | **Needs `[FILL:]`** | No |
 | **Agents** | All |

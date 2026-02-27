@@ -17,6 +17,10 @@ This project uses [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   - `.agent/skills/setup-repo/SKILL.md` — Antigravity / Gemini / Jules
   - `.github/prompts/setup-repo.prompt.md` — GitHub Copilot prompt command
 
+### Removed
+
+- **`setup.sh`** — superseded by the `/setup-repo` skill, which fills all instruction files automatically using AI codebase analysis (vs. ~15 markers via interactive prompts)
+
 ---
 
 ## [1.0.2] — 2026-02-27

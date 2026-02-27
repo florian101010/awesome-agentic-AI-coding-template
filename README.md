@@ -137,7 +137,7 @@ cp -r awesome-agentic-AI-coding-template/. your-project/
 rm -rf your-project/.git
 ```
 
-### Configure (AI-powered — fastest)
+### Configure
 
 Let the agent analyze your codebase and generate filled-in versions of every instruction file automatically.
 
@@ -154,16 +154,6 @@ npx repomix   # produces repomix-output.xml
 ```
 
 Then open your agent (Copilot `/setup-repo`, Cursor, Gemini, etc.), attach the repomix output, and invoke the skill. The agent reads the codebase, infers constraints, and outputs ready-to-paste content for all 8 instruction files.
-
-### Configure (2 minutes with setup script)
-
-Run the interactive setup script to populate the most common `[FILL:]` markers automatically:
-
-```bash
-bash setup.sh
-```
-
-The script prompts for your project name, description, tech stack, test/lint/build commands, constraints, and prohibitions — then writes them into `CLAUDE.md`, `AGENTS.md`, `GEMINI.md`, and `.github/copilot-instructions.md`. It also offers to activate git hooks at the end.
 
 ### Configure (manual — 5 minutes)
 
