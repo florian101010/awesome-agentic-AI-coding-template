@@ -25,17 +25,24 @@ def rg_files(glob: str) -> int:
 
 
 def count_fill_markers() -> tuple[int, int]:
-    file_count = 0
-    marker_count = 0
-    for path in ROOT.rglob("*.md"):
-        if ".git" in path.parts:
-            continue
-        text = path.read_text(encoding="utf-8", errors="ignore")
-        c = len(re.findall(r"\[FILL:", text))
-        if c:
-            file_count += 1
-            marker_count += c
-    return file_count, marker_count
+    try:
+        base_args = ["rg", "-uu", "-g", "*.md", "-g", "!.git"]
+
+        files_cmd = base_args + ["--files-with-matches", r"\[FILL:"]
+        proc_files = subprocess.run(files_cmd, cwd=ROOT, capture_output=True, text=True, check=False)
+        if proc_files.returncode not in (0, 1):
+            raise RuntimeError(f"rg failed for file count: {proc_files.stderr.strip() or 'rg failed'}")
+
+        markers_cmd = base_args + ["-o", r"\[FILL:"]
+        proc_markers = subprocess.run(markers_cmd, cwd=ROOT, capture_output=True, text=True, check=False)
+        if proc_markers.returncode not in (0, 1):
+            raise RuntimeError(f"rg failed for marker count: {proc_markers.stderr.strip() or 'rg failed'}")
+
+        file_count = len([l for l in proc_files.stdout.splitlines() if l.strip()])
+        marker_count = len([l for l in proc_markers.stdout.splitlines() if l.strip()])
+        return file_count, marker_count
+    except FileNotFoundError as exc:
+        raise RuntimeError("'rg' (ripgrep) is not installed or not in PATH") from exc
 
 
 def render() -> str:
