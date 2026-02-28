@@ -27,10 +27,6 @@ def fail(msg: str) -> None:
 
 
 def main() -> int:
-    if not CONTEXT.exists():
-        print("[context-sync] SKIP: project-context.json not found (template mode)")
-        return 0
-
     try:
         data = json.loads(CONTEXT.read_text(encoding="utf-8"))
     except FileNotFoundError:
