@@ -11,7 +11,11 @@
 #
 # TO UPDATE AFTER ADDING/EDITING FILES:
 #   1. Ensure you are on the PR branch with main merged in (or rebase on main).
-#   2. Run: grep -rn "\[FILL:" <file> | wc -l   for any changed file.
+#   2. Count with: grep -oh "\[FILL:" <file> | wc -l
+#      IMPORTANT: use grep -oh (match count), NOT grep -c (line count).
+#      grep -c counts lines; a line with two [FILL: occurrences counts as 1.
+#      The check script uses `rg -o ... | wc -l` which counts individual matches,
+#      so grep -c will give a wrong (lower) baseline and cause spurious CI failures.
 #   3. Update the count here. Phase 1 of check-fill-markers.sh enforces that
 #      the actual count never EXCEEDS the baseline (regressions fail; reductions
 #      are fine — they just mean you resolved some placeholders).
@@ -49,7 +53,7 @@
 .github/prompts/setup-repo.prompt.md=3
 .github/pull_request_template.md=1
 .kilocode/rules/coding-standards.md=8
-AGENTS.md=13
+AGENTS.md=14
 CHANGELOG.md=5
 CLAUDE.md=11
 CONTRIBUTING.md=2
