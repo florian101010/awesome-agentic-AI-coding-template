@@ -4,24 +4,23 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 import re
-import subprocess
 import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "docs" / "TEMPLATE-HEALTH.md"
 
 
-def rg_files(glob: str) -> int:
-    cmd = ["rg", "--files", "-uu", "-g", glob]
-    try:
-        proc = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, check=False)
-    except FileNotFoundError as exc:
-        raise RuntimeError("'rg' (ripgrep) is not installed or not in PATH") from exc
+def glob_files(pattern: str) -> int:
+    """Count files matching a glob pattern under ROOT.
 
-    if proc.returncode not in (0, 1):
-        raise RuntimeError(proc.stderr.strip() or "rg failed")
-    lines = [l for l in proc.stdout.splitlines() if l.strip()]
-    return len(lines)
+    Uses pathlib.rglob so no external tools are needed. The pattern must be of
+    the form ``<dir>/<rest>`` where ``<dir>`` is a top-level directory and
+    ``<rest>`` is a glob suffix such as ``skills/**/SKILL.md``.
+    """
+    parts = pattern.split("/", 1)
+    base = ROOT / parts[0]
+    rest = parts[1] if len(parts) > 1 else "*"
+    return sum(1 for p in base.rglob(rest) if p.is_file())
 
 
 def count_fill_markers() -> tuple[int, int]:
@@ -40,11 +39,11 @@ def count_fill_markers() -> tuple[int, int]:
 
 def render() -> str:
     fill_files, fill_markers = count_fill_markers()
-    universal_skills = rg_files(".agents/skills/**/SKILL.md")
-    claude_skills = rg_files(".claude/skills/**/SKILL.md")
-    agent_skills = rg_files(".agent/skills/**/SKILL.md")
-    gha_workflows = rg_files(".github/workflows/*.yml")
-    agent_workflows = rg_files(".agent/workflows/*.md")
+    universal_skills = glob_files(".agents/skills/**/SKILL.md")
+    claude_skills = glob_files(".claude/skills/**/SKILL.md")
+    agent_skills = glob_files(".agent/skills/**/SKILL.md")
+    gha_workflows = glob_files(".github/workflows/*.yml")
+    agent_workflows = glob_files(".agent/workflows/*.md")
 
     return "\n".join(
         [
