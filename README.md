@@ -203,6 +203,15 @@ cp .env.example .env
 
 The `.env.example` documents every variable the scripts expect. `.env` is git-ignored — never commit real keys.
 
+**Step 6 — Enable cross-file consistency checks** (optional):
+
+```bash
+cp project-context.example.json project-context.json
+# Edit project-context.json — set project_name, description, tech_stack, and commands
+```
+
+Once `project-context.json` exists, running `bash scripts/check-all.sh` will verify that these values are present in all four agent instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`). Useful for catching drift when one file is updated but the others are not.
+
 Done. Your AI agents now operate with full project context.
 
 ---
