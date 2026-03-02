@@ -14,7 +14,7 @@
 #   2. Count with: grep -oh "\[FILL:" <file> | wc -l
 #      IMPORTANT: use grep -oh (match count), NOT grep -c (line count).
 #      grep -c counts lines; a line with two [FILL: occurrences counts as 1.
-#      The check script uses `rg -o ... | wc -l` which counts individual matches,
+#      The check script uses `grep -o ... | wc -l` which counts individual matches,
 #      so grep -c will give a wrong (lower) baseline and cause spurious CI failures.
 #   3. Update the count here. Phase 1 of check-fill-markers.sh enforces that
 #      the actual count never EXCEEDS the baseline (regressions fail; reductions
@@ -23,8 +23,10 @@
 #      caught by phase 2 (untracked file detection) and also fail CI.
 #      Add them here immediately when creating them.
 #
-# Files in hidden dirs (e.g. .agent/, .claude/) are NOT scanned by rg's phase 2
-# because rg skips hidden dirs by default. Add them explicitly below whenever
+# Phase 2 of check-fill-markers.sh uses 'find', which descends into hidden
+# directories (e.g. .agent/, .agents/, .claude/) by default — unlike rg.
+# Any .md file in a hidden dir that contains [FILL:] markers WILL be flagged
+# by Phase 2 if not listed here. Add new hidden-dir files below whenever
 # a new SKILL.md, workflow, or rules file with [FILL:] markers is created.
 
 .agent/rules/coding-standards.md=8
@@ -65,4 +67,6 @@ docs/_plans/IMPLEMENTATION-PLAN.md=0
 docs/ARCHITECTURE.md=12
 docs/CUSTOMIZATION-GUIDE.md=7
 docs/REPO-RATING.md=4
+docs/EXAMPLE-PROFILE.md=0
 docs/SKILLS-CATALOG.md=22
+docs/TEMPLATE-HEALTH.md=0

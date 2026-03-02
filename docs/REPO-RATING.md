@@ -32,7 +32,7 @@ This repository is a strong, production-minded **template system** for AI-assist
 
 ## What Can Be Optimized (Highest ROI)
 
-## 1) Enforce Placeholder Completion in CI (P0)
+### 1) Enforce Placeholder Completion in CI (P0)
 
 **Current gap:** Placeholder completion depends heavily on manual discipline.
 
@@ -44,7 +44,7 @@ This repository is a strong, production-minded **template system** for AI-assist
 
 **Impact:** Immediate reliability jump; less ambiguous agent behavior.
 
-## 2) Prevent Cross-Agent Instruction Drift (P0/P1)
+### 2) Prevent Cross-Agent Instruction Drift (P0/P1)
 
 **Current gap:** Project facts are duplicated across multiple instruction files.
 
@@ -56,7 +56,7 @@ This repository is a strong, production-minded **template system** for AI-assist
 
 **Impact:** Consistent behavior across tools and lower maintenance overhead.
 
-## 3) Standardize Validation Commands Once (P1)
+### 3) Standardize Validation Commands Once (P1)
 
 **Current gap:** Test/lint/build commands are still template placeholders in multiple files.
 
@@ -68,7 +68,7 @@ This repository is a strong, production-minded **template system** for AI-assist
 
 **Impact:** Better developer UX and fewer “which command is correct?” errors.
 
-## 4) Add a Fully Resolved Example Profile (P1)
+### 4) Add a Fully Resolved Example Profile (P1)
 
 **Current gap:** New adopters must infer a complete “finished” customization state.
 
@@ -80,7 +80,7 @@ This repository is a strong, production-minded **template system** for AI-assist
 
 **Impact:** Faster adoption and fewer partial setups.
 
-## 5) Add Template Health Metrics (P2)
+### 5) Add Template Health Metrics (P2)
 
 **Current gap:** No explicit scorecard for ongoing template adoption quality.
 

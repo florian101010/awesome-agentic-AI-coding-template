@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+"""Generate (or verify freshness of) the template health report at docs/TEMPLATE-HEALTH.md.
+
+Usage:
+  python3 scripts/template-health-report.py           # write/refresh the report
+  python3 scripts/template-health-report.py --check   # exit non-zero if report is stale
+"""
 from __future__ import annotations
 
 import argparse

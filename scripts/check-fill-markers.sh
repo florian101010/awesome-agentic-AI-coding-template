@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Uses only POSIX tools (grep, find) — no ripgrep required.
+# Requires bash (uses [[ ]], (( )), and process substitution).
+# External tools required: grep, find — no ripgrep needed.
 
 BASELINE_FILE="${1:-.fill-marker-baseline}"
 
@@ -31,6 +32,12 @@ status=0
 while IFS='=' read -r file expected; do
   [[ -z "${file:-}" ]] && continue
   [[ "${file:0:1}" == "#" ]] && continue
+
+  if [[ ! "$expected" =~ ^[0-9]+$ ]]; then
+    echo "[fill-check] ERROR: invalid baseline entry for '$file': expected a non-negative integer, got '$expected'" >&2
+    status=1
+    continue
+  fi
 
   current="$(count_fill_markers "$file")"
 
