@@ -219,6 +219,62 @@ The architecture addresses drift at three levels:
 
 ---
 
+## Template Quality Gates
+
+The template ships a small set of integrity scripts and a CI workflow that enforce ongoing template health.
+
+### `scripts/` — quality gate tools
+
+```text
+scripts/
+├── check-fill-markers.sh        ← Phase 1: tracked files don't exceed baseline counts
+│                                   Phase 2: new .md files with [FILL:] are not untracked
+├── check-agent-context-sync.py  ← When project-context.json exists, verify its values
+│                                   appear in AGENTS.md, CLAUDE.md, GEMINI.md, and
+│                                   .github/copilot-instructions.md
+├── template-health-report.py    ← Generates docs/TEMPLATE-HEALTH.md with live metrics
+│                                   (placeholder counts, skill counts, workflow counts)
+└── check-all.sh                 ← Unified gate: runs all three checks in sequence
+```
+
+Run the full gate locally at any time:
+
+```bash
+bash scripts/check-all.sh
+```
+
+### `.fill-marker-baseline` — placeholder regression guard
+
+Tracks the **allowed number of `[FILL:]` occurrences** per file. The check script uses `rg -o` to count individual matches (not lines), so the baseline must be built the same way:
+
+```bash
+# Correct — counts individual occurrences (matches rg -o behavior)
+grep -oh "\[FILL:" <file> | wc -l
+
+# Wrong — counts lines; undercounts when a line has two [FILL: markers
+grep -c "\[FILL:" <file>
+```
+
+CI checks the **virtual merge commit** (PR branch merged with current `main`). If `main` advances between when a PR is branched and when it merges, files that changed on `main` must have their baseline counts updated in the PR before merge. See the comment block at the top of `.fill-marker-baseline` for the full update procedure.
+
+### `project-context.example.json` — canonical project metadata (optional)
+
+Copy to `project-context.json` and fill in real values. Once the file exists, `check-agent-context-sync.py` verifies that `project_name`, `description`, `tech_stack`, and the `test` command all appear in the four main agent instruction files. When `project-context.json` is absent the check skips silently (template mode).
+
+### CI workflow
+
+`.github/workflows/pr-checks.yml` runs on every PR against `main` or `develop`:
+
+| Job | What it checks |
+| --- | --- |
+| `fill-marker-regression` | `check-fill-markers.sh` — no new unresolved `[FILL:]` introduced |
+| `template-quality` | `check-all.sh` — full gate including context sync and health report freshness |
+| `secret-scan` | Gitleaks secret detection |
+| `script-analysis` | ShellCheck on all `.sh` files |
+| `pr-analysis` | AI-assisted PR review (requires `JULES_API_KEY` secret) |
+
+---
+
 ## What This Template Does NOT Include
 
 Intentional omissions:
@@ -226,7 +282,7 @@ Intentional omissions:
 | Not included | Why |
 | --- | --- |
 | Build system / bundler | Template is framework-agnostic |
-| CI/CD pipeline | Highly project-specific; add your own `.github/workflows/` |
+| Application CI/CD pipeline | Highly project-specific; add your own deploy/build workflows |
 | Test framework config | Depends on your stack |
 | `package.json` / `requirements.txt` | No runtime dependencies — agent config files only |
 | Pre-filled `CHANGELOG.md` | Your project's changelog belongs in your project |

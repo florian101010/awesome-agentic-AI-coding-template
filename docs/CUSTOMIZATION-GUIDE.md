@@ -224,16 +224,28 @@ These sections exist in the template for projects that need them. **Delete them 
 
 ## Validation Checklist
 
-After filling in all placeholders, run through this:
+After filling in all placeholders, run the unified quality gate:
 
 ```bash
-# 1. No unfilled placeholders remain
-grep -rn "\[FILL:" . --include="*.md" | grep -v node_modules
+bash scripts/check-all.sh
+```
 
-# 2. All placeholder files are committed
-git status
+This runs three checks in sequence:
 
-# 3. Git hooks are active
+1. **Placeholder regression** — verifies no `[FILL:]` count in any tracked file exceeds its baseline
+2. **Context sync** — if `project-context.json` exists, verifies its values appear in all agent instruction files
+3. **Health report freshness** — verifies `docs/TEMPLATE-HEALTH.md` reflects the current state
+
+Or run individual checks:
+
+```bash
+# See which files still have placeholders and how many
+grep -roh "\[FILL:" . --include="*.md" | wc -l
+
+# List all files with remaining placeholders
+grep -rln "\[FILL:" . --include="*.md" | grep -v node_modules
+
+# Verify git hooks are active
 git config core.hooksPath
 # Should output: .githooks
 ```
@@ -244,3 +256,14 @@ And manually verify:
 - [ ] Test command in "After Every Change" actually runs and passes
 - [ ] `Immutable Contract` section either has real values or is deleted
 - [ ] `.env` is in `.gitignore` (it is by default — don't remove it)
+
+### Optional: canonical project metadata
+
+For automated cross-file consistency checking, copy the example context file and fill it in:
+
+```bash
+cp project-context.example.json project-context.json
+# Edit project-context.json with your real project_name, description, tech_stack, and commands
+```
+
+Once `project-context.json` exists, `bash scripts/check-all.sh` will also verify that these values are present in `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and `.github/copilot-instructions.md`. This catches drift when one file is updated but the others are not.

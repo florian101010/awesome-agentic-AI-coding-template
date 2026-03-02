@@ -158,6 +158,16 @@ When reporting a bug, include:
 2. Use the PR template — it includes a checklist for common quality checks.
 3. PRs that add or modify skill/workflow files should include a brief description of how the change was tested (which agent, which project).
 4. PRs that change `README.md` significantly should update the table of contents if applicable.
+5. **PRs that add `.md` files containing `[FILL:]` markers must update `.fill-marker-baseline`.**
+   Add a new line `path/to/file.md=<count>` where count is the number of individual occurrences:
+
+   ```bash
+   grep -oh "\[FILL:" path/to/file.md | wc -l
+   ```
+
+   Use `grep -oh` (match count), **not** `grep -c` (line count). A line containing two `[FILL:` markers counts as 1 with `-c` but 2 with `-oh`. The CI script uses `rg -o` which counts individual matches, so `-c` will produce an incorrect (lower) baseline and cause CI to fail.
+
+   Important: the baseline must reflect the **post-merge** state. If `main` has advanced since you branched, re-check the counts for any files that changed on `main` and update accordingly before asking for review.
 
 **Branch naming:**
 
