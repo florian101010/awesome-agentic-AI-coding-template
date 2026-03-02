@@ -79,7 +79,7 @@ One template, every major agent, zero duplication.
 │   │   └── markdown-quality.md
 │   ├── agents/
 │   │   └── qa-reviewer.md             ← Claude subagent: automated code reviewer
-│   └── skills/                        ← Claude skill library (15 skills)
+│   └── skills/                        ← Claude skill library (16 skills)
 │       ├── brainstorming/
 │       ├── doc-audit/
 │       ├── feature-delivery/
@@ -93,7 +93,7 @@ One template, every major agent, zero duplication.
 │       ├── writing-plans/
 │       └── ...
 │
-├── .agents/skills/                    ← Universal skill library (works with all tools)
+├── .agents/skills/                    ← Universal skill library (16 skills, works with all tools)
 │
 ├── .kilocode/
 │   └── rules/
@@ -112,10 +112,20 @@ One template, every major agent, zero duplication.
 │   │   └── pr-analysis.md
 │   └── scripts/                       ← Jules API helpers, PR analysis automation
 │
+├── scripts/                           ← Optional local adoption tools
+│   ├── check-fill-markers.sh          ← Scan for [FILL:] placeholder regressions (needs a baseline file)
+│   ├── check-agent-context-sync.py    ← Verify project-context.json is in sync across agent files
+│   ├── template-health-report.py      ← Generate docs/TEMPLATE-HEALTH.md metrics
+│   └── check-all.sh                   ← Run all available checks in one command
+│
+├── project-context.example.json       ← Optional: canonical project metadata for sync checks
+│
 └── docs/
     ├── ARCHITECTURE.md                       ← Why the template is structured the way it is
     ├── CUSTOMIZATION-GUIDE.md                ← How to fill every [FILL:] marker, file by file
     ├── SKILLS-CATALOG.md                     ← Every skill: what it does, when to use it, invocation
+    ├── TEMPLATE-HEALTH.md                    ← Auto-generated: placeholder counts and skill stats
+    ├── EXAMPLE-PROFILE.md                    ← Reference: what a fully configured setup looks like
     └── ai-coding-agents-best-practices.md    ← Full reference: Claude Code, Copilot, Kilo Code, Antigravity
 ```
 

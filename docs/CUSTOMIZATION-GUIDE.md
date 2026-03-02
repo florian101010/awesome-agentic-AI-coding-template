@@ -224,19 +224,31 @@ These sections exist in the template for projects that need them. **Delete them 
 
 ## Validation Checklist
 
-After filling in all placeholders, run through this:
+After filling in all placeholders, use the optional local quality checks:
 
 ```bash
-# 1. No unfilled placeholders remain
-grep -rn "\[FILL:" . --include="*.md" | grep -v node_modules
+# List all files that still have placeholders
+grep -rln "\[FILL:" . --include="*.md" | grep -v node_modules
 
-# 2. All placeholder files are committed
-git status
+# Count total remaining placeholders
+grep -roh "\[FILL:" . --include="*.md" | wc -l
 
-# 3. Git hooks are active
+# Verify git hooks are active
 git config core.hooksPath
 # Should output: .githooks
 ```
+
+Or run the bundled script that combines all checks:
+
+```bash
+bash scripts/check-all.sh
+```
+
+This runs in sequence:
+
+1. **Fill-marker check** — if a `.fill-marker-baseline` exists in your repo, verifies no tracked file exceeds its baseline count (skipped if no baseline)
+2. **Context sync** — if `project-context.json` exists, verifies its values appear in all agent instruction files
+3. **Health report freshness** — verifies `docs/TEMPLATE-HEALTH.md` reflects the current state
 
 And manually verify:
 - [ ] `CLAUDE.md` describes your actual project, not the template
@@ -244,3 +256,14 @@ And manually verify:
 - [ ] Test command in "After Every Change" actually runs and passes
 - [ ] `Immutable Contract` section either has real values or is deleted
 - [ ] `.env` is in `.gitignore` (it is by default — don't remove it)
+
+### Optional: canonical project metadata
+
+For automated cross-file consistency checking, copy the example context file and fill it in:
+
+```bash
+cp project-context.example.json project-context.json
+# Edit project-context.json with your real project_name, description, tech_stack, and commands
+```
+
+Once `project-context.json` exists, `bash scripts/check-all.sh` will also verify that these values are present in `AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, and `.github/copilot-instructions.md`. This catches drift when one file is updated but the others are not.

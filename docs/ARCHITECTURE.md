@@ -219,6 +219,48 @@ The architecture addresses drift at three levels:
 
 ---
 
+## Optional Local Quality Tools
+
+The template ships a `scripts/` directory with optional tools for adopters who want automated consistency checks during setup. These are **local utilities, not CI requirements** — they are most useful to run during initial customization, not as ongoing CI gates on the template itself.
+
+### `scripts/` — adoption toolbox
+
+```text
+scripts/
+├── check-fill-markers.sh        ← Scan for [FILL:] markers against an optional baseline file
+│                                   Useful for adopted repos to guard against placeholder regressions
+├── check-agent-context-sync.py  ← When project-context.json exists, verify its values
+│                                   appear in AGENTS.md, CLAUDE.md, GEMINI.md, and
+│                                   .github/copilot-instructions.md
+├── template-health-report.py    ← Generates docs/TEMPLATE-HEALTH.md with live metrics
+│                                   (placeholder counts, skill counts, workflow counts)
+└── check-all.sh                 ← Run all available checks in one command
+```
+
+Run the full local check at any time:
+
+```bash
+bash scripts/check-all.sh
+```
+
+### `project-context.example.json` — canonical project metadata (optional)
+
+Copy to `project-context.json` and fill in real values. Once the file exists, `check-agent-context-sync.py` verifies that `project_name`, `description`, `tech_stack`, and the `test` command all appear in the four main agent instruction files. When `project-context.json` is absent the check skips silently (template mode).
+
+### CI workflow
+
+`.github/workflows/pr-checks.yml` runs on every PR against `main` or `develop`:
+
+| Job | What it checks |
+| --- | --- |
+| `secret-scan` | Gitleaks secret detection |
+| `script-analysis` | ShellCheck on all `.sh` files |
+| `pr-analysis` | AI-assisted PR review (requires `JULES_API_KEY` secret) |
+
+Template-specific checks (placeholder counts, health report freshness) are **not** run in CI by design. The template intentionally ships with `[FILL:]` placeholders — enforcing their absence would make the template's own CI fail on every PR. These checks belong in *adopted* repos, not in the template itself.
+
+---
+
 ## What This Template Does NOT Include
 
 Intentional omissions:
@@ -226,7 +268,7 @@ Intentional omissions:
 | Not included | Why |
 | --- | --- |
 | Build system / bundler | Template is framework-agnostic |
-| CI/CD pipeline | Highly project-specific; add your own `.github/workflows/` |
+| Application CI/CD pipeline | Highly project-specific; add your own deploy/build workflows |
 | Test framework config | Depends on your stack |
 | `package.json` / `requirements.txt` | No runtime dependencies — agent config files only |
 | Pre-filled `CHANGELOG.md` | Your project's changelog belongs in your project |
