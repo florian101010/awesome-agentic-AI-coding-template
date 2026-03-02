@@ -1,3 +1,28 @@
+# .fill-marker-baseline
+# Format: <relative-file-path>=<allowed-[FILL:]-marker-count>
+# Lines starting with # are ignored. Blank lines are ignored.
+#
+# HOW TO MAINTAIN:
+# When merging a PR, CI checks the virtual merge commit (PR + current main).
+# This means the counts here must reflect the POST-MERGE state, not just the
+# PR branch state. If main advances between when a PR is branched and when it
+# merges, any files that changed on main must be re-checked and their counts
+# updated in this PR before merge.
+#
+# TO UPDATE AFTER ADDING/EDITING FILES:
+#   1. Ensure you are on the PR branch with main merged in (or rebase on main).
+#   2. Run: grep -rn "\[FILL:" <file> | wc -l   for any changed file.
+#   3. Update the count here. Phase 1 of check-fill-markers.sh enforces that
+#      the actual count never EXCEEDS the baseline (regressions fail; reductions
+#      are fine — they just mean you resolved some placeholders).
+#   4. New .md files with [FILL:] markers that are NOT listed here will be
+#      caught by phase 2 (untracked file detection) and also fail CI.
+#      Add them here immediately when creating them.
+#
+# Files in hidden dirs (e.g. .agent/, .claude/) are NOT scanned by rg's phase 2
+# because rg skips hidden dirs by default. Add them explicitly below whenever
+# a new SKILL.md, workflow, or rules file with [FILL:] markers is created.
+
 .agent/rules/coding-standards.md=8
 .agent/skills/doc-audit/SKILL.md=17
 .agent/skills/qa-audit/SKILL.md=12
