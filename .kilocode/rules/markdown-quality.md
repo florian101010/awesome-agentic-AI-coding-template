@@ -1,11 +1,10 @@
 ---
-paths:
-  - "**/*.md"
+trigger: always
 ---
 
 # Markdown Quality Rules
 
-<!-- SYNC: Keep in sync with .agent/rules/markdown-quality.md and .kilocode/rules/markdown-quality.md -->
+<!-- SYNC: Keep in sync with .claude/rules/markdown-quality.md and .agent/rules/markdown-quality.md -->
 
 ## Table Style
 
@@ -26,7 +25,7 @@ Every fenced code block MUST include a language specifier: `js`, `html`, `css`, 
 - Single H1 per file (MD025)
 - Logical increments only — no skipping from H2 to H4 (MD001)
 - All subheadings unique within the document (MD024)
-- CHANGELOG exception: append version in parentheses to avoid MD024 (e.g., `### Geändert (v0.3.11)`)
+- CHANGELOG exception: append version in parentheses to avoid MD024 (e.g., `### Changed (v0.3.11)`)
 
 ## Links and Paths
 
