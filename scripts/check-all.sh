@@ -17,6 +17,11 @@ else
 fi
 
 echo "[check-all] Checking template health report freshness"
-python3 scripts/template-health-report.py --check
+python3 scripts/template-health-report.py
+if ! git diff --exit-code docs/TEMPLATE-HEALTH.md >/dev/null 2>&1; then
+  echo "[health] ERROR: docs/TEMPLATE-HEALTH.md is out of date — run 'python3 scripts/template-health-report.py' and commit the result" >&2
+  exit 1
+fi
+echo "[health] OK: template health report is up to date"
 
 echo "[check-all] OK"

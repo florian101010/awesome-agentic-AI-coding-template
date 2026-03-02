@@ -5,7 +5,7 @@
 | Metric | Value |
 | --- | --- |
 | Markdown files containing placeholders | 38 |
-| Total placeholder markers | 417 |
+| Total placeholder markers | 414 |
 | Universal skills (`.agents`) | 16 |
 | Claude skills (`.claude`) | 16 |
 | Agent skills (`.agent`) | 16 |
