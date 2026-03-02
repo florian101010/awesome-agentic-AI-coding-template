@@ -93,3 +93,4 @@ assets/*
 .agent/skills/skill-creator/SKILL.md
 .agents/skills/skill-creator/SKILL.md
 docs/_analysis/*
+docs/_plans/*
