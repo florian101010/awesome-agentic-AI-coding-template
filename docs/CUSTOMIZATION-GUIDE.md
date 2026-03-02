@@ -224,31 +224,31 @@ These sections exist in the template for projects that need them. **Delete them 
 
 ## Validation Checklist
 
-After filling in all placeholders, run the unified quality gate:
+After filling in all placeholders, use the optional local quality checks:
 
 ```bash
-bash scripts/check-all.sh
-```
-
-This runs three checks in sequence:
-
-1. **Placeholder regression** — verifies no `[FILL:]` count in any tracked file exceeds its baseline
-2. **Context sync** — if `project-context.json` exists, verifies its values appear in all agent instruction files
-3. **Health report freshness** — verifies `docs/TEMPLATE-HEALTH.md` reflects the current state
-
-Or run individual checks:
-
-```bash
-# See which files still have placeholders and how many
-grep -roh "\[FILL:" . --include="*.md" | wc -l
-
-# List all files with remaining placeholders
+# List all files that still have placeholders
 grep -rln "\[FILL:" . --include="*.md" | grep -v node_modules
+
+# Count total remaining placeholders
+grep -roh "\[FILL:" . --include="*.md" | wc -l
 
 # Verify git hooks are active
 git config core.hooksPath
 # Should output: .githooks
 ```
+
+Or run the bundled script that combines all checks:
+
+```bash
+bash scripts/check-all.sh
+```
+
+This runs in sequence:
+
+1. **Fill-marker check** — if a `.fill-marker-baseline` exists in your repo, verifies no tracked file exceeds its baseline count (skipped if no baseline)
+2. **Context sync** — if `project-context.json` exists, verifies its values appear in all agent instruction files
+3. **Health report freshness** — verifies `docs/TEMPLATE-HEALTH.md` reflects the current state
 
 And manually verify:
 - [ ] `CLAUDE.md` describes your actual project, not the template

@@ -112,11 +112,11 @@ One template, every major agent, zero duplication.
 │   │   └── pr-analysis.md
 │   └── scripts/                       ← Jules API helpers, PR analysis automation
 │
-├── scripts/                           ← Template quality gate tools
-│   ├── check-fill-markers.sh          ← Detect [FILL:] placeholder regressions
+├── scripts/                           ← Optional local adoption tools
+│   ├── check-fill-markers.sh          ← Scan for [FILL:] placeholder regressions (needs a baseline file)
 │   ├── check-agent-context-sync.py    ← Verify project-context.json is in sync across agent files
 │   ├── template-health-report.py      ← Generate docs/TEMPLATE-HEALTH.md metrics
-│   └── check-all.sh                   ← Run all checks in one command
+│   └── check-all.sh                   ← Run all available checks in one command
 │
 ├── project-context.example.json       ← Optional: canonical project metadata for sync checks
 │

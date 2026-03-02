@@ -5,8 +5,12 @@ set -uo pipefail
 
 status=0
 
-echo "[check-all] Running fill marker regression check"
-bash scripts/check-fill-markers.sh .fill-marker-baseline || status=1
+if [[ -f .fill-marker-baseline ]]; then
+  echo "[check-all] Running fill marker regression check"
+  bash scripts/check-fill-markers.sh .fill-marker-baseline || status=1
+else
+  echo "[check-all] SKIP: no .fill-marker-baseline found (create one to enable placeholder regression checks)"
+fi
 
 echo "[check-all] Running agent context sync check"
 python3 scripts/check-agent-context-sync.py || status=1

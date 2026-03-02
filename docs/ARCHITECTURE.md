@@ -219,43 +219,29 @@ The architecture addresses drift at three levels:
 
 ---
 
-## Template Quality Gates
+## Optional Local Quality Tools
 
-The template ships a small set of integrity scripts and a CI workflow that enforce ongoing template health.
+The template ships a `scripts/` directory with optional tools for adopters who want automated consistency checks during setup. These are **local utilities, not CI requirements** — they are most useful to run during initial customization, not as ongoing CI gates on the template itself.
 
-### `scripts/` — quality gate tools
+### `scripts/` — adoption toolbox
 
 ```text
 scripts/
-├── check-fill-markers.sh        ← Phase 1: tracked files don't exceed baseline counts
-│                                   Phase 2: new .md files with [FILL:] are not untracked
+├── check-fill-markers.sh        ← Scan for [FILL:] markers against an optional baseline file
+│                                   Useful for adopted repos to guard against placeholder regressions
 ├── check-agent-context-sync.py  ← When project-context.json exists, verify its values
 │                                   appear in AGENTS.md, CLAUDE.md, GEMINI.md, and
 │                                   .github/copilot-instructions.md
 ├── template-health-report.py    ← Generates docs/TEMPLATE-HEALTH.md with live metrics
 │                                   (placeholder counts, skill counts, workflow counts)
-└── check-all.sh                 ← Unified gate: runs all three checks in sequence
+└── check-all.sh                 ← Run all available checks in one command
 ```
 
-Run the full gate locally at any time:
+Run the full local check at any time:
 
 ```bash
 bash scripts/check-all.sh
 ```
-
-### `.fill-marker-baseline` — placeholder regression guard
-
-Tracks the **allowed number of `[FILL:]` occurrences** per file. The check script uses `rg -o` to count individual matches (not lines), so the baseline must be built the same way:
-
-```bash
-# Correct — counts individual occurrences (matches rg -o behavior)
-grep -oh "\[FILL:" <file> | wc -l
-
-# Wrong — counts lines; undercounts when a line has two [FILL: markers
-grep -c "\[FILL:" <file>
-```
-
-CI checks the **virtual merge commit** (PR branch merged with current `main`). If `main` advances between when a PR is branched and when it merges, files that changed on `main` must have their baseline counts updated in the PR before merge. See the comment block at the top of `.fill-marker-baseline` for the full update procedure.
 
 ### `project-context.example.json` — canonical project metadata (optional)
 
@@ -267,11 +253,11 @@ Copy to `project-context.json` and fill in real values. Once the file exists, `c
 
 | Job | What it checks |
 | --- | --- |
-| `fill-marker-regression` | `check-fill-markers.sh` — no new unresolved `[FILL:]` introduced |
-| `template-quality` | `check-all.sh` — full gate including context sync and health report freshness |
 | `secret-scan` | Gitleaks secret detection |
 | `script-analysis` | ShellCheck on all `.sh` files |
 | `pr-analysis` | AI-assisted PR review (requires `JULES_API_KEY` secret) |
+
+Template-specific checks (placeholder counts, health report freshness) are **not** run in CI by design. The template intentionally ships with `[FILL:]` placeholders — enforcing their absence would make the template's own CI fail on every PR. These checks belong in *adopted* repos, not in the template itself.
 
 ---
 

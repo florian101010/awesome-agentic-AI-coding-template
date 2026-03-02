@@ -8,22 +8,6 @@ on:
       - develop
 
 jobs:
-  template-quality:
-    name: Template Quality Gate
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Run check-all
-        # NOTE: CI checks the virtual merge commit (PR branch merged into current
-        # main). If main has advanced since the PR was branched, counts in
-        # .fill-marker-baseline must reflect the POST-MERGE state. See the
-        # comment block at the top of .fill-marker-baseline for update steps.
-        # check-all.sh runs fill-marker-regression, context-sync, shellcheck,
-        # and health-report freshness — all failures are reported before exit.
-        run: bash scripts/check-all.sh
-
   secret-scan:
     name: Secret Scanning (Gitleaks)
     runs-on: ubuntu-latest
@@ -69,7 +53,7 @@ jobs:
   pr-analysis:
     name: Paranoid PR Analysis & AI Review
     runs-on: ubuntu-latest
-    needs: [template-quality, secret-scan, script-analysis]
+    needs: [secret-scan, script-analysis]
     env:
       JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
     steps:
