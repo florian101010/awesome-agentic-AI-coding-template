@@ -2,6 +2,7 @@
   "project_name": "Acme Notes",
   "description": "Collaborative notes platform for product and engineering teams.",
   "tech_stack": "TypeScript, React, Node.js",
+  "agents": ["claude", "copilot"],
   "constraints": [
     "All API access goes through src/api/client.ts",
     "No runtime framework changes without ADR"

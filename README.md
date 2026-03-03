@@ -118,7 +118,7 @@ One template, every major agent, zero duplication.
 │   ├── template-health-report.py      ← Generate docs/TEMPLATE-HEALTH.md metrics
 │   └── check-all.sh                   ← Run all available checks in one command
 │
-├── project-context.example.json       ← Optional: canonical project metadata for sync checks
+├── project-context.example.json       ← Example: canonical project metadata (written by /setup-repo)
 │
 └── docs/
     ├── ARCHITECTURE.md                       ← Why the template is structured the way it is
@@ -149,7 +149,7 @@ rm -rf your-project/.git
 
 ### Configure
 
-Let the agent analyze your codebase and generate filled-in versions of every instruction file automatically.
+Let the agent analyze your codebase and generate filled-in versions of the instruction files for the AI tools you actually use.
 
 **In Claude Code** — invoke the skill directly:
 
@@ -157,13 +157,15 @@ Let the agent analyze your codebase and generate filled-in versions of every ins
 /setup-repo
 ```
 
+The skill will ask which AI tools you use (Claude Code, Copilot, Jules, etc.), auto-detect your test/lint commands from `package.json`, `pyproject.toml`, `Cargo.toml`, or `Makefile`, then write only the relevant files. A Claude-only user configures ~8 files; selecting all tools configures the full 41. It also writes `project-context.json` as a canonical record of your setup choices.
+
 **In any other agent** — bundle the repo first, then paste the prompt:
 
 ```bash
-npx repomix   # produces repomix-output.xml
+npx repomix   # produces repomix-output.xml (not committed to git)
 ```
 
-Then open your agent (Copilot `/setup-repo`, Cursor, Gemini, etc.), attach the repomix output, and invoke the skill. The agent reads the codebase, infers constraints, and outputs ready-to-paste content for all 8 instruction files.
+Then open your agent (Copilot `/setup-repo`, Cursor, Gemini, etc.), attach the repomix output, and invoke the skill. The agent asks which tools you use, reads the codebase, and outputs ready-to-paste content for the relevant instruction files.
 
 ### Configure (manual — 5 minutes)
 
@@ -203,14 +205,16 @@ cp .env.example .env
 
 The `.env.example` documents every variable the scripts expect. `.env` is git-ignored — never commit real keys.
 
-**Step 6 — Enable cross-file consistency checks** (optional):
+**Step 6 — Cross-file consistency checks:**
+
+`/setup-repo` writes `project-context.json` automatically as part of setup. Once it exists, `bash scripts/check-all.sh` verifies that the project name, stack, and commands are consistent across all active agent instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`). Useful for catching drift when one file is updated but the others are not.
+
+If you skipped `/setup-repo` and set up manually, seed it from the example:
 
 ```bash
 cp project-context.example.json project-context.json
-# Edit project-context.json — set project_name, description, tech_stack, and commands
+# Edit project-context.json — set project_name, description, tech_stack, agents, and commands
 ```
-
-Once `project-context.json` exists, running `bash scripts/check-all.sh` will verify that these values are present in all four agent instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`). Useful for catching drift when one file is updated but the others are not.
 
 Done. Your AI agents now operate with full project context.
 
@@ -222,7 +226,7 @@ Every skill is ready to invoke. Universal skills need no customization; project-
 
 | Skill | Invoke | What it does |
 | --- | --- | --- |
-| **Setup Repo** | `/setup-repo` | AI-powered setup — analyze codebase and auto-fill all agent instruction files |
+| **Setup Repo** | `/setup-repo` | AI-powered setup — select active AI tools, auto-detect stack, fill only the relevant agent instruction files |
 | **Brainstorming** | `/brainstorming` | Structured ideation — explores user intent and constraints before building |
 | **Systematic Debugging** | `/systematic-debugging` | Root-cause analysis — never guess, always trace |
 | **QA Audit** | `/qa-audit` | 9-phase security + robustness audit: XSS, rule compliance, race conditions |
