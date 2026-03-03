@@ -251,7 +251,7 @@ trigger: always
 {
   "project_name": "Acme Notes",
   "description": "Collaborative notes platform for product and engineering teams",
-  "tech_stack": ["TypeScript", "React", "Node.js", "PostgreSQL"],
+  "tech_stack": "TypeScript, React, Node.js, PostgreSQL",
   "commands": {
     "test": "npm test",
     "lint": "npm run lint",
