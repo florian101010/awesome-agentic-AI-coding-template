@@ -233,7 +233,7 @@ trigger: always
 - Minimal changes only — don't touch unrelated files
 - No unsolicited features
 - No `console.log` in production code — use the shared logger in `src/utils/logger.ts`
-- Relative paths only — no leading `/` or `./`
+- Use `./` or `../` for local imports — never bare names for local files (required for ES module resolution)
 
 ## Git Hook Policy
 
