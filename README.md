@@ -207,7 +207,7 @@ The `.env.example` documents every variable the scripts expect. `.env` is git-ig
 
 **Step 6 — Cross-file consistency checks:**
 
-`/setup-repo` writes `project-context.json` automatically as part of setup. Once it exists, `bash scripts/check-all.sh` verifies that the project name, stack, and commands are consistent across all active agent instruction files (`AGENTS.md`, `CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`). Useful for catching drift when one file is updated but the others are not.
+`/setup-repo` writes `project-context.json` automatically as part of setup. Once it exists, `bash scripts/check-all.sh` verifies that the project name, stack, and commands are consistent across all active agent instruction files (e.g., `AGENTS.md`, `CLAUDE.md`, depending on your selection). Useful for catching drift when one file is updated but the others are not.
 
 If you skipped `/setup-repo` and set up manually, seed it from the example:
 
