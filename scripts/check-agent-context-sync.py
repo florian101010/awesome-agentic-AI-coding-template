@@ -3,7 +3,11 @@
 
 Behavior:
 - If project-context.json is missing, exits 0 with a skip message (template mode).
-- If present, ensures core values appear in all key instruction surfaces.
+- If present, ensures core values appear in only the instruction files that correspond to
+  the active agents listed in the "agents" field. Files for inactive agents are skipped.
+- AGENTS.md and CLAUDE.md are always checked (they are generated for all setups).
+- .github/copilot-instructions.md is checked only when "copilot" is active.
+- GEMINI.md is checked only when "gemini" or "jules" is active.
 """
 from __future__ import annotations
 
@@ -14,12 +18,28 @@ import sys
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTEXT = ROOT / "project-context.json"
-TARGETS = [
+
+# Files always generated regardless of agent selection.
+_ALWAYS = [
     ROOT / "AGENTS.md",
     ROOT / "CLAUDE.md",
-    ROOT / "GEMINI.md",
-    ROOT / ".github" / "copilot-instructions.md",
 ]
+
+# Files generated only when specific agents are active.
+_CONDITIONAL: list[tuple[list[str], Path]] = [
+    (["copilot"], ROOT / ".github" / "copilot-instructions.md"),
+    (["gemini", "jules"], ROOT / "GEMINI.md"),
+]
+
+
+def _build_targets(agents: list[str]) -> list[Path]:
+    """Return the instruction files that should exist for the given active agent set."""
+    active = {a.lower() for a in agents}
+    targets = list(_ALWAYS)
+    for required_agents, path in _CONDITIONAL:
+        if active & set(required_agents):
+            targets.append(path)
+    return targets
 
 
 def fail(msg: str) -> None:
@@ -50,8 +70,15 @@ def main() -> int:
         fail(f"missing required context fields: {', '.join(missing_fields)}")
         return 1
 
+    agents: list[str] = data.get("agents", [])
+    targets = _build_targets(agents)
+    if agents:
+        print(f"[context-sync] active agents: {', '.join(agents)} — checking {len(targets)} file(s)")
+    else:
+        print("[context-sync] no 'agents' field found — checking all default files")
+
     status = 0
-    for target in TARGETS:
+    for target in targets:
         if not target.exists():
             fail(f"required instruction file missing: {target.relative_to(ROOT)}")
             status = 1
