@@ -102,7 +102,7 @@ Generate complete filled content for:
 ### Tier 3 — Skill files (after user confirms Tier 2)
 
 - `.claude/skills/qa-audit/SKILL.md` `[claude only — source of truth]` (mirrors to `.agents/skills/` and `.agent/skills/` for active agents)
-- `.claude/skills/doc-audit/SKILL.md` `[claude only — source of truth]` (mirrors to active agent directories)
+- `.claude/skills/doc-audit/SKILL.md` `[claude only — source of truth]` (mirrors to `.agents/skills/` and `.agent/skills/` for active agents)
 
 ### Tier 4 — Workflows `[jules/gemini only]`
 
