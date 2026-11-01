@@ -178,4 +178,3 @@ If any doc fixes were made:
 | 🟠 High | Missing files in agent file maps, outdated conventions | Fix before next AI-assisted change |
 | 🟡 Medium | Missing changelog entry, outdated roadmap | Fix in next doc pass |
 | 🟢 Low | Stylistic inconsistency | Fix when convenient |
-

@@ -41,4 +41,3 @@ Before finalizing documentation changes:
 - Keep release-relevant updates reflected in `CHANGELOG.md`.
 - For architecture-level changes, ensure an ADR file exists in `decisions/`.
 - Run `.githooks/pre-commit` before final handoff.
-

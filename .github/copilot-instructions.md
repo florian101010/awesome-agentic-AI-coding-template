@@ -50,4 +50,3 @@ Agent Skills (via `/skill-name` in chat) and Prompt Files (via `/command`) are a
 
 Full docs at `docs/` — start with `README.md`.
 [FILL: Add link to engineering playbook or architecture doc if applicable.]
-

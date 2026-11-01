@@ -49,4 +49,3 @@ Save to `docs/QA-AUDIT-{YYYY-MM-DD}.md` with severity-classified findings includ
 ## Full Procedure
 
 See `.agent/workflows/qa-audit.md` for the complete step-by-step workflow.
-

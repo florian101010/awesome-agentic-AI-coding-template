@@ -25,4 +25,3 @@ Before writing the plan, verify:
 6. **ADR needed?** — is this an architectural change that warrants an ADR in `docs/decisions/`?
 
 Do NOT write any code yet — output the plan only.
-

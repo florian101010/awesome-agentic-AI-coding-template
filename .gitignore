@@ -28,3 +28,5 @@ Thumbs.db
 # ─── Docs ──────────────────────────────────────────────────────────────
 docs/_analysis/*
 docs/_plans/*
+# Erzeugt von `npx repomix` (README) — nicht einchecken.
+repomix-output.xml

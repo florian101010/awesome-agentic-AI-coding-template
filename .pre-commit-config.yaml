@@ -54,6 +54,15 @@ repos:
           (?x)^(
             \.pre-commit-config\.yaml|
             \.githooks/.*|
+            # Vorlagen-Dateien mit absichtlichen Platzhaltern und Werkzeuge, die das Muster selbst behandeln
+            \.env\.example|
+            \.cursorrules|
+            CONTRIBUTING\.md|
+            \.github/(prompts|instructions)/.*|
+            \.github/pull_request_template\.md|
+            \.github/workflows/doc-audit\.yml|
+            \.agent/scripts/.*|
+            scripts/(check-fill-markers\.sh|template-health-report\.py)|
             README\.md|
             AGENTS\.md|
             CLAUDE\.md|
