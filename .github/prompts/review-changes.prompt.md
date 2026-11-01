@@ -37,4 +37,3 @@ List each violation as:
 - **Fix** (one-line suggestion)
 
 If no violations found, output: ✅ **Ready to commit.** — no rule violations detected.
-

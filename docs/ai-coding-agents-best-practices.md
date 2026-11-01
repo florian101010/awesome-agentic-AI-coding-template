@@ -1050,7 +1050,7 @@ project-root/
 │   │   │                              # tools: Read, Grep, Glob
 │   │   │                              # model: opus
 │   │   └── test-writer.md             # Spezialist für Test-Generierung
-│   │       
+│   │
 │   ├── hooks/                         # Deterministische Hooks
 │   │   └── protect-files.sh           # Schützt kritische Dateien vor Modifikation
 │   │

@@ -161,13 +161,13 @@ if __name__ == "__main__":
     final_report = []
     for r in results:
         report_segment = extract_gemini_insights(r)
-        
+
         # Output to individual file
         pr_id = r.get("number", "unknown")
         with open(os.path.join(args.output_dir, f"pr_{pr_id}_gemini_report.md"), "w") as f:
             f.write(f"# Gemini Insights for PR #{pr_id}\n\n")
             f.write(report_segment)
-            
+
         print(report_segment)
         final_report.append(report_segment)
 
