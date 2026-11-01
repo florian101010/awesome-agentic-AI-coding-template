@@ -1,3 +1,8 @@
+# Node-Hooks (markdownlint-cli2) mit dem installierten Node statt nodeenv-"latest":
+# nodeenv scheitert an Vorabversionen im Node-Index ("0-alpha", 2026-11-01).
+default_language_version:
+  node: system
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -17,7 +22,6 @@ repos:
     hooks:
       - id: gitleaks
         description: Detect hardcoded secrets using Gitleaks
-        args: ["Protect", "-v"]
 
   # Markdown Formatting & Validation
   - repo: https://github.com/DavidAnson/markdownlint-cli2
@@ -42,12 +46,14 @@ repos:
   - repo: local
     hooks:
       - id: check-template-markers
-        name: Check for unresolved [FILL: ...] markers
+        name: "Check for unresolved [FILL: ...] markers"
         entry: bash -c '! grep -n "\[FILL:" "$@"' --
         language: system
         types: [text]
         exclude: >
           (?x)^(
+            \.pre-commit-config\.yaml|
+            \.githooks/.*|
             README\.md|
             AGENTS\.md|
             CLAUDE\.md|
