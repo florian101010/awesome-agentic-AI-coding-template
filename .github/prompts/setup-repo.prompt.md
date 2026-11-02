@@ -1,61 +1,110 @@
 ---
 name: 'setup-repo'
-description: 'Fully configure this repo for a specific project — asks 3 questions, analyzes @workspace, then generates filled content for all 32 instruction files across all tiers'
+description: 'Fully configure this repo for a specific project — asks 4 questions (including which AI tools you use), auto-detects the tech stack, then generates filled content only for the active agent files'
 agent: copilot
 argument-hint: 'Optionally describe your project if context is not self-evident from the codebase'
 ---
 
-You are configuring this AI coding template for a specific project. Your goal: zero `[FILL:]` markers remaining after this session.
+You are configuring this AI coding template for a specific project. Your goal: zero `[FILL:]` markers remaining in files for the AI tools you actually use.
 
-## Step 0 — Ask the user 3 questions first
+## Step 0 — Ask the user 4 questions first
 
 These answers cannot be inferred from code:
 
-1. **Users & deployment:** "Who are the primary users and what is the deployment environment?"
-2. **Immutable contract:** "Any externally-bound IDs, stored schemas, or API versions that must NEVER change? (answer 'none' to delete that section)"
-3. **Extra prohibitions:** "Anything agents should never do that isn't obvious from reading the code?"
+1. **AI tools in use:** "Which AI coding tools will you use with this repo? (Select all that apply: Claude Code · GitHub Copilot · Cursor · Google Jules · Gemini / Antigravity · Kilo Code · All of the above)"
+2. **Users & deployment:** "Who are the primary users and what is the deployment environment?"
+3. **Immutable contract:** "Any externally-bound IDs, stored schemas, or API versions that must NEVER change? (answer 'none' to delete that section)"
+4. **Extra prohibitions:** "Anything agents should never do that isn't obvious from reading the code?"
 
-Wait for all three answers before analyzing anything.
+Wait for all four answers before analyzing anything. Store the answer to question 1 as the **active agent set**.
 
-## Step 1 — Gather project facts from @workspace
+## Step 1 — Auto-detect project facts from @workspace
+
+Use this detection table first — only ask the user if detection is ambiguous:
+
+| Signal | Auto-detected value |
+| --- | --- |
+| `package.json` → `scripts.test` | test command (exact value) |
+| `package.json` → `scripts.lint` | lint command (exact value) |
+| `package.json` → `scripts.build` | build command (exact value) |
+| `pyproject.toml` present, no `package.json` | test = `pytest`, stack = Python |
+| `Cargo.toml` present | test = `cargo test`, stack = Rust |
+| `go.mod` present | test = `go test ./...`, stack = Go |
+| `Makefile` with `test:` target | test = `make test` (if no other signal) |
+| `tsconfig.json` present | stack includes TypeScript |
+| `.eslintrc*` or `eslint.config.*` present | lint tool = ESLint |
+
+Also gather from @workspace:
 
 | Fact | Source |
 | --- | --- |
 | Project name & description | `package.json`, `README.md` H1 |
 | Tech stack | `package.json` deps, file extensions |
-| Test / lint / build commands | `package.json` scripts, `Makefile`, CI config |
 | Architectural constraints | `.githooks/`, CI workflows, repeated code patterns |
 | Prohibitions | Linter rules, code comments |
 | File structure | Top-level dirs + entry points |
 | Primary source file | Entry point (for audit skills) |
 
-## Step 2 — Generate all files, tiered
+## Step 1.5 — Output `project-context.json` first
+
+Before any instruction file, output the contents of `project-context.json`:
+
+```json
+{
+  "project_name": "<detected>",
+  "description": "<detected>",
+  "tech_stack": "<detected>",
+  "agents": ["<keys from question 1, e.g. claude, copilot>"],
+  "constraints": ["<constraint 1>", "<constraint 2>"],
+  "prohibitions": ["<prohibition 1>", "<prohibition 2>"],
+  "commands": {
+    "test": "<detected or user-provided>",
+    "lint": "<detected or user-provided>",
+    "build": "<detected or user-provided>"
+  }
+}
+```
+
+Agent key mapping: Claude Code → `"claude"` · GitHub Copilot → `"copilot"` · Cursor → `"cursor"` · Jules → `"jules"` · Gemini → `"gemini"` · Kilo Code → `"kilocode"`
+
+## Step 2 — Generate files, tiered, for active agents only
+
+**Skip files for AI tools not in the active agent set.**
+
+| Active agent | Files to generate |
+| --- | --- |
+| `[ALL]` | `CLAUDE.md`, `AGENTS.md` |
+| `claude` | `.claude/` (all subdirs), `.cursorrules` |
+| `copilot` | `.github/copilot-instructions.md`, `.github/prompts/`, `.github/instructions/`, `.github/pull_request_template.md` |
+| `cursor` | `.cursorrules` |
+| `jules` or `gemini` | `.agent/` (rules, workflows, skills), `GEMINI.md` |
+| `kilocode` | `.kilocode/rules/` |
 
 ### Tier 1 — Essential (output these first)
 
 Generate complete filled content for:
-- `CLAUDE.md`
-- `AGENTS.md` (include a real file structure block from @workspace)
-- `GEMINI.md`
-- `.github/copilot-instructions.md`
-- `.cursorrules`
+- `CLAUDE.md` `[ALL]`
+- `AGENTS.md` `[ALL]` — include a real file structure block from @workspace
+- `GEMINI.md` `[jules/gemini only]`
+- `.github/copilot-instructions.md` `[copilot only]`
+- `.cursorrules` `[claude/cursor only]`
 
 ### Tier 2 — Important (after user confirms Tier 1)
 
-- `.claude/agents/qa-reviewer.md`
-- `.claude/rules/coding-standards.md` (note: content mirrors to `.agent/rules/` and `.kilocode/rules/`)
-- `.github/pull_request_template.md`
-- `.github/prompts/new-feature.prompt.md`
-- `.github/prompts/review-changes.prompt.md`
-- `.github/instructions/docs.instructions.md`
-- `.github/instructions/qa-audit.instructions.md`
+- `.claude/agents/qa-reviewer.md` `[claude only]`
+- `.claude/rules/coding-standards.md` `[claude only]` (note: mirrors to `.agent/rules/` and `.kilocode/rules/` for active agents)
+- `.github/pull_request_template.md` `[copilot only]`
+- `.github/prompts/new-feature.prompt.md` `[copilot only]`
+- `.github/prompts/review-changes.prompt.md` `[copilot only]`
+- `.github/instructions/docs.instructions.md` `[copilot only]`
+- `.github/instructions/qa-audit.instructions.md` `[copilot only]`
 
 ### Tier 3 — Skill files (after user confirms Tier 2)
 
-- `.claude/skills/qa-audit/SKILL.md` (note: mirrors to `.agents/skills/` and `.agent/skills/`)
-- `.claude/skills/doc-audit/SKILL.md` (note: mirrors to `.agents/skills/` and `.agent/skills/`)
+- `.claude/skills/qa-audit/SKILL.md` `[claude only — source of truth]` (mirrors to `.agents/skills/` and `.agent/skills/` for active agents)
+- `.claude/skills/doc-audit/SKILL.md` `[claude only — source of truth]` (mirrors to `.agents/skills/` and `.agent/skills/` for active agents)
 
-### Tier 4 — Workflows (complex — fill best-effort, flag unclear with `[REVIEW: reason]`)
+### Tier 4 — Workflows `[jules/gemini only]`
 
 - `.agent/workflows/qa-audit.md`
 - `.agent/workflows/pr-analysis.md`
@@ -69,7 +118,7 @@ Generate complete filled content for:
 
 - **Specific:** include file paths, function names, exact patterns — never vague intent
 - **Evidence-based:** only write what you found in @workspace or user answers
-- **Delete inapplicable sections:** `## Immutable Contract` if Q2 = "none"; layout/UI sections if not a UI project
+- **Delete inapplicable sections:** `## Immutable Contract` if Q3 = "none"; layout/UI sections if not a UI project
 - **Keep universal rules:** do not remove or alter non-placeholder content
 
 ## Output format
@@ -77,6 +126,9 @@ Generate complete filled content for:
 For each file output its path as a heading, then complete file content:
 
 ```
+## FILE: project-context.json
+<complete content>
+
 ## FILE: CLAUDE.md
 <complete content>
 
@@ -88,9 +140,12 @@ After all tiers, output:
 
 ```
 ## Setup Summary
+- Active agents: <list>
 - Files generated: <count>
+- Files skipped (inactive agents): <count>
 - [FILL:] markers resolved: <count>
 - [REVIEW:] markers flagged: <list>
+- Auto-detected: test=<cmd>, lint=<cmd>, build=<cmd>
 - Sections deleted: <list or "none">
 ```
 
@@ -102,7 +157,7 @@ Remind them to:
 # Activate git hooks
 git config core.hooksPath .githooks
 
-# Verify no markers remain
+# Verify no markers remain in active files
 grep -rn "\[FILL:" . --include="*.md" --include="*.yaml" --include="*.yml" --include="*.cursorrules" \
   | grep -v ".git/" \
   | grep -v "README.md" \

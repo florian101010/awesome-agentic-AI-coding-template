@@ -1,15 +1,15 @@
 ---
 name: setup-repo
-description: "Fully configure this repo for a specific project. Asks 3 targeted questions, reads the codebase, then writes all agent instruction files in place — replacing every [FILL:] marker across all 32 files. Run immediately after cloning the template."
+description: "Fully configure this repo for a specific project. Asks 4 targeted questions (including which AI tools you use), auto-detects your tech stack, then writes only the relevant agent instruction files in place — replacing every [FILL:] marker. Run immediately after cloning the template."
 ---
 
 # Setup Repo
 
 ## Overview
 
-This skill produces a fully configured repo with zero remaining `[FILL:]` markers. It covers all 32 files that contain markers — not just the primary instruction files — and writes them directly when run in Claude Code.
+This skill produces a fully configured repo with zero remaining `[FILL:]` markers. It first asks which AI tools you actually use, then only generates the files for those tools — so a Claude-only user configures ~8 files instead of 41.
 
-**Announce at start:** "I'm using the setup-repo skill. I'll ask you 3 quick questions, then read the codebase and write all instruction files."
+**Announce at start:** "I'm using the setup-repo skill. I'll ask you 4 quick questions, then read the codebase and write all relevant instruction files."
 
 ## When to Use
 
@@ -28,23 +28,29 @@ This skill produces a fully configured repo with zero remaining `[FILL:]` marker
 
 ### Mode A — Claude Code (preferred)
 
-Claude Code has direct file access. The skill reads files, gathers facts, writes every file in place, activates git hooks, and validates. No copy-pasting required.
+Claude Code has direct file access. The skill reads files, gathers facts, writes every relevant file in place, activates git hooks, and validates. No copy-pasting required.
 
 ### Mode B — Other agents
 
 Generate a repo bundle first:
 
 ```bash
-npx repomix   # produces repomix-output.xml (already configured)
+npx repomix   # produces repomix-output.xml (already configured; not committed to git)
 ```
 
 Attach `repomix-output.xml` to your chat. The skill outputs filled content tiered by priority — paste and apply Tier 1 before proceeding to Tier 2.
 
 ---
 
-## Phase 0 — Ask 3 Questions
+## Phase 0 — Ask 4 Questions
 
 Before reading a single file, ask the user these questions. Their answers fill things no codebase analysis can determine:
+
+**Question 0 — AI tools in use:**
+> "Which AI coding tools will you use with this repo? (Select all that apply)"
+> Options: Claude Code · GitHub Copilot · Cursor · Google Jules · Gemini / Antigravity · Kilo Code · All of the above
+
+Store the answer as the **active agent set**. Use it in Phase 2 to skip files for unused tools. If the user answers "All", generate everything.
 
 **Question 1 — Users & deployment context:**
 > "Who are the primary users of this project and what is the deployment environment?"
@@ -58,22 +64,40 @@ Before reading a single file, ask the user these questions. Their answers fill t
 > "Is there anything agents should never do that won't be obvious from reading the code?"
 > *(e.g. "Never modify the payments module without a second review", "Never add browser APIs — this runs in a Node.js CLI")*
 
-Wait for all three answers before proceeding.
+Wait for all four answers before proceeding.
 
 ---
 
 ## Phase 1 — Gather Project Facts
 
-Read the codebase to establish these values:
+Read the codebase to establish these values. Use the auto-detection table below first — only ask the user if auto-detection is ambiguous or produces no result.
+
+### Detection lookup table
+
+| Signal | Auto-detected value |
+| --- | --- |
+| `package.json` → `scripts.test` exists | test command (use exact value) |
+| `package.json` → `scripts.lint` exists | lint command (use exact value) |
+| `package.json` → `scripts.build` exists | build command (use exact value) |
+| `pyproject.toml` present, no `package.json` | test = `pytest`, stack includes Python |
+| `Cargo.toml` present | test = `cargo test`, stack includes Rust |
+| `go.mod` present | test = `go test ./...`, stack includes Go |
+| `Makefile` with `test:` target | test = `make test` (if no other signal) |
+| `tsconfig.json` present | stack includes TypeScript |
+| `.eslintrc*` or `eslint.config.*` present | lint tool = ESLint |
+
+**Rule:** If a value is auto-detected, do not ask the user — include it in the Summary Output under "Auto-detected values". Only ask if multiple signals conflict.
+
+### Full facts table
 
 | Fact | Where to look |
 | --- | --- |
 | Project name | `package.json` `name`, directory name, `README.md` H1 |
 | Description | `package.json` `description`, `README.md` intro paragraph |
 | Tech stack | `package.json` `dependencies`/`devDependencies`, file extensions, import patterns |
-| Test command | `package.json` `scripts.test`, `Makefile`, `pyproject.toml`, `Cargo.toml` |
-| Lint command | `package.json` `scripts.lint`, `.eslintrc*`, `.pre-commit-config.yaml` |
-| Build command | `package.json` `scripts.build`, `Makefile`, `Dockerfile` |
+| Test command | Auto-detection table above |
+| Lint command | Auto-detection table above |
+| Build command | Auto-detection table above |
 | Architectural constraints | `.githooks/`, CI workflows, patterns repeated across source files |
 | Prohibitions | ESLint/linter rules, code comments flagging bad patterns |
 | File structure | Top-level dirs, entry points, key config files agents need to navigate |
@@ -90,9 +114,63 @@ This gives you the exact list of files and line numbers to process.
 
 ---
 
+## Phase 1.5 — Write `project-context.json`
+
+Before generating any instruction files, write `project-context.json` as the canonical record of all setup decisions:
+
+```json
+{
+  "project_name": "<detected or user-provided>",
+  "description": "<detected or user-provided>",
+  "tech_stack": "<detected stack string>",
+  "agents": ["<agent keys from Question 0, e.g. claude, copilot, jules>"],
+  "constraints": [
+    "<constraint 1 from codebase or user>",
+    "<constraint 2>"
+  ],
+  "prohibitions": [
+    "<prohibition 1 from Question 3 or linting rules>",
+    "<prohibition 2>"
+  ],
+  "commands": {
+    "test": "<auto-detected or user-provided>",
+    "lint": "<auto-detected or user-provided>",
+    "build": "<auto-detected or user-provided>"
+  }
+}
+```
+
+Agent key mapping for the `"agents"` array:
+
+| Question 0 answer | Key to use |
+| --- | --- |
+| Claude Code | `"claude"` |
+| GitHub Copilot | `"copilot"` |
+| Cursor | `"cursor"` |
+| Google Jules | `"jules"` |
+| Gemini / Antigravity | `"gemini"` |
+| Kilo Code | `"kilocode"` |
+
+This file is the durable record that `scripts/check-agent-context-sync.py` validates against. It is **not** optional.
+
+---
+
 ## Phase 2 — Generate and Write (Tiered)
 
 Process files in tier order. In **Mode A**, write each file in place using Edit/Write tools. In **Mode B**, output each tier's content before starting the next.
+
+**Skip files for AI tools not in the active agent set.** Files marked `[ALL]` are always generated regardless of agent selection.
+
+### Agent-to-file mapping
+
+| Active agent | Files to generate |
+| --- | --- |
+| `[ALL]` | `CLAUDE.md`, `AGENTS.md` |
+| `claude` | `.claude/` (all subdirs), `.cursorrules` |
+| `copilot` | `.github/copilot-instructions.md`, `.github/prompts/`, `.github/instructions/`, `.github/pull_request_template.md` |
+| `cursor` | `.cursorrules` |
+| `jules` or `gemini` | `.agent/` (rules, workflows, skills), `GEMINI.md` |
+| `kilocode` | `.kilocode/rules/` |
 
 ### Fill quality rules — apply to every marker
 
@@ -113,79 +191,77 @@ Process files in tier order. In **Mode A**, write each file in place using Edit/
 
 ---
 
-### Tier 1 — Essential (agents read these every session)
+### Tier 1 — Essential (always generated)
 
-These 5 files are loaded on every agent conversation. Fill them first.
-
-**1. `CLAUDE.md`**
+**1. `CLAUDE.md`** `[ALL]`
 Fill: project name + description + tech stack (one line), 2 constraints, 2 prohibitions, test/lint/build commands, after-every-change steps.
 
-**2. `AGENTS.md`**
+**2. `AGENTS.md`** `[ALL]`
 Fill: project overview, 3 architectural constraints, file structure block (generate from actual top-level dirs and entry points — use `text` code block), 2 coding rules, immutable contract (or delete section), test command, verification steps, any project-specific doc links.
 
-**3. `GEMINI.md`**
+**3. `GEMINI.md`** `[jules / gemini only]`
 Same structure as CLAUDE.md — fill identically.
 
-**4. `.github/copilot-instructions.md`**
+**4. `.github/copilot-instructions.md`** `[copilot only]`
 Fill: project name + description + tech stack + deployment context (from Question 1), 2 always-do rules, 3 never-do prohibitions (include user answer from Question 3), key files table (3–5 rows: entry point, main config, test entry, key utility), any doc links.
 
-**5. `.cursorrules`**
+**5. `.cursorrules`** `[claude / cursor only]`
 Fill: test command (one line).
 
 ---
 
 ### Tier 2 — Important (quality gates, PR reviews, prompts)
 
-**6. `.claude/agents/qa-reviewer.md`**
+**6. `.claude/agents/qa-reviewer.md`** `[claude only]`
 Fill: 2 project-specific review rules (derive from linting config, architectural constraints, or user answers).
 
-**7. `.claude/rules/coding-standards.md`**
+**7. `.claude/rules/coding-standards.md`** `[claude only]`
 Fill: 3 architectural constraints, language/framework-specific rules section heading + 2–4 rules derived from stack, 2 project rules, immutable contract reference (or delete).
 Then copy this file's content verbatim to:
-- `.agent/rules/coding-standards.md` (change frontmatter `trigger: always` — keep it)
-- `.kilocode/rules/coding-standards.md`
+- `.agent/rules/coding-standards.md` if `jules` or `gemini` is active (keep `trigger: always` frontmatter)
+- `.kilocode/rules/coding-standards.md` if `kilocode` is active
 
-**8–9. `.agent/rules/coding-standards.md` and `.kilocode/rules/coding-standards.md`**
-Apply the copy from step 7.
+**8–9. `.agent/rules/coding-standards.md` and `.kilocode/rules/coding-standards.md`** `[jules/gemini and kilocode respectively]`
+Apply the copy from step 7 for active agents only.
 
-**10. `.github/pull_request_template.md`**
+**10. `.github/pull_request_template.md`** `[copilot only]`
 Fill: doc paths section (list the 2–3 key docs agents should verify are up to date after every change).
 
-**11. `.github/prompts/new-feature.prompt.md`**
+**11. `.github/prompts/new-feature.prompt.md`** `[copilot only]`
 Fill: 2 planning constraints (derive from tech stack constraints — e.g. "This is achievable with [stack] — no [forbidden pattern]").
 
-**12. `.github/prompts/review-changes.prompt.md`**
+**12. `.github/prompts/review-changes.prompt.md`** `[copilot only]`
 Fill: 2 project-specific review checks (derive from linting rules, architectural constraints).
 
-**13. `.github/instructions/docs.instructions.md`**
+**13. `.github/instructions/docs.instructions.md`** `[copilot only]`
 Fill: additional doc paths relevant to the project (entry point docs, API docs, engineering playbook if present).
 
-**14. `.github/instructions/qa-audit.instructions.md`**
+**14. `.github/instructions/qa-audit.instructions.md`** `[copilot only]`
 Fill: main source file path (entry point), 3 project-specific audit checks (security, rule compliance, robustness — derive from codebase patterns).
 
 ---
 
-### Tier 3 — Skill files (fill once, sync to 3 directories)
+### Tier 3 — Skill files (fill once, sync to active directories)
 
-Generate filled content for `.claude/skills/qa-audit/SKILL.md` and `.claude/skills/doc-audit/SKILL.md`, then copy each to the parallel directories.
+Generate filled content for `.claude/skills/qa-audit/SKILL.md` and `.claude/skills/doc-audit/SKILL.md`, then copy to parallel directories for active agents only.
 
-**15. `.claude/skills/qa-audit/SKILL.md`**
+**15. `.claude/skills/qa-audit/SKILL.md`** `[claude only — source of truth]`
 Fill: main source file name, 1 project-specific security check, 2 rule compliance checks (from linting/architecture), 1 race condition check, 1 error propagation check, 1 key value that must match across rule files, any additional rule files beyond the defaults.
-Then copy to:
-- `.agents/skills/qa-audit/SKILL.md`
-- `.agent/skills/qa-audit/SKILL.md`
+Then copy to active directories only:
+- `.agents/skills/qa-audit/SKILL.md` (if any non-Claude agent is active)
+- `.agent/skills/qa-audit/SKILL.md` (if `jules` or `gemini` is active)
 
-**16. `.claude/skills/doc-audit/SKILL.md`**
+**16. `.claude/skills/doc-audit/SKILL.md`** `[claude only — source of truth]`
 Fill: project-specific doc references, key values to verify for drift, any custom audit scripts.
-Then copy to:
-- `.agents/skills/doc-audit/SKILL.md`
-- `.agent/skills/doc-audit/SKILL.md`
+Then copy to active directories only:
+- `.agents/skills/doc-audit/SKILL.md` (if any non-Claude agent is active)
+- `.agent/skills/doc-audit/SKILL.md` (if `jules` or `gemini` is active)
 
 ---
 
-### Tier 4 — Workflows (complex — fill best-effort, flag unclear markers)
+### Tier 4 — Workflows `[jules / gemini only]`
 
-These workflows have deep project-specific content. Fill what can be determined from the codebase; flag any marker you cannot fill confidently with `[REVIEW: <reason>]` instead of leaving `[FILL:]`.
+These workflows are only generated if `jules` or `gemini` is in the active agent set. Fill what can be determined from the codebase; flag any marker you cannot fill confidently with `[REVIEW: <reason>]` instead of leaving `[FILL:]`.
 
 **17. `.agent/workflows/qa-audit.md`** (35 markers)
 Fill: test command, main source file, zone definitions (derive from file structure), rule checks (from architecture), config file list, security checks, robustness checks, drift checks.
@@ -241,6 +317,7 @@ git add -A && git commit -m "chore: configure repo from template via /setup-repo
 - If it can be filled from codebase facts: fill it now
 - If it requires user input: ask the user directly
 - If it is in a section that doesn't apply: delete the section
+- If it is for an agent not in the active agent set: skip it
 
 Repeat validation until clean.
 
@@ -253,9 +330,13 @@ After completing all phases, output:
 ```
 ## Setup Complete
 
+- Active agents: <list from Question 0>
 - Files written: <count>
+- Files skipped (inactive agents): <count>
 - [FILL:] markers resolved: <count>
 - [REVIEW:] markers flagged for manual review: <count> (list them)
+- Auto-detected values: test=<cmd>, lint=<cmd>, build=<cmd>, stack=<stack>
 - Sections deleted (not applicable): <list>
 - Git hooks: activated ✓ / skipped (Mode B — activate manually)
+- project-context.json: written ✓
 ```
